@@ -23,6 +23,12 @@ export default function Header() {
       <div className="flex items-center gap-3 sm:gap-4">
         <ModeToggle />
           <Link
+            href={"/profile"}
+            
+          >
+            Profile
+          </Link>
+          <Link
             href={"/discover"}
             
           >

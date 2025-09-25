@@ -5,3 +5,19 @@ export const CHECK_USER = gql`
     checkExistingUser(clerkId: $clerkId)
   }
 `;
+
+export const GET_CURRENT_USER = gql`
+  query getCurrentUser($clerkId: String!) {
+    getCurrentUser(clerkId: $clerkId) {
+      id
+      clerkId
+      name
+      age
+      bio
+      gender
+      interests
+      images
+      createdAt
+    }
+  }
+`;

@@ -5,28 +5,34 @@ import { useState, useEffect } from "react";
 import gqlClient from "@/services/graphql";
 import { REGISTER_USER } from "@/utils/mutations";
 import { useRouter } from "next/navigation";
+import { CldUploadButton, CloudinaryUploadWidgetInfo } from "next-cloudinary";
+import Image from "next/image";
+import { RegisterUserArgs, UserImageInput } from "@/types";
 
 export default function OnboardingPage() {
   const { user } = useUser();
   const router = useRouter();
 
-  // local form state
   const [name, setName] = useState("");
   const [age, setAge] = useState<number | "">("");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
+  const [images, setImages] = useState<UserImageInput[]>([]);
 
-  // ui state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Pre-fill when Clerk user is available
+  // Prefill with Clerk info
   useEffect(() => {
     if (user) {
-      setName(user.fullName || ""); // Clerk full name
-      setBio(`Hi, I'm ${user.firstName || "new here"} 👋`); // playful default bio
-      // you could also auto-add email or profile pic later
+      setName(user.fullName ?? "");
+      setBio(user.primaryEmailAddress?.emailAddress ?? "");
+      if (user.imageUrl) {
+        setImages([
+          { url: user.imageUrl, publicId: "clerk-profile", order: 0 },
+        ]);
+      }
     }
   }, [user]);
 
@@ -34,34 +40,24 @@ export default function OnboardingPage() {
     e.preventDefault();
     if (!user?.id) return;
 
-    const obj = {
+    const input: RegisterUserArgs = {
       clerkId: user.id,
       name,
-      age: age === "" ? null : Number(age),
+      age: age === "" ? 18 : Number(age),
       bio,
       gender,
       interests,
+      images,
     };
 
     try {
       setLoading(true);
       setError(null);
-
-      await gqlClient.request(REGISTER_USER, obj);
-
-      // get intended route or fallback
-      const redirectPath =
-        sessionStorage.getItem("redirectAfterOnboarding") ||
-        "/";
-
-      sessionStorage.removeItem("redirectAfterOnboarding"); // clean up
-      router.push(redirectPath);
+      await gqlClient.request(REGISTER_USER, { input });
+      router.push("/"); // redirect after success
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong while saving profile");
-      }
+      if (err instanceof Error) setError(err.message);
+      else setError("Something went wrong while saving profile");
     } finally {
       setLoading(false);
     }
@@ -77,7 +73,6 @@ export default function OnboardingPage() {
           Complete Your Profile
         </h2>
 
-        {/* Pre-filled with Clerk fullName */}
         <input
           type="text"
           placeholder="Your name"
@@ -85,26 +80,6 @@ export default function OnboardingPage() {
           onChange={(e) => setName(e.target.value)}
           className="w-full border border-border rounded-md px-3 py-2"
         />
-
-        {/* Optional pre-fill bio */}
-        <textarea
-          placeholder="Short bio"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          className="w-full border border-border rounded-md px-3 py-2"
-        />
-
-        {/* Email shown but disabled (read-only) */}
-        {user?.primaryEmailAddress?.emailAddress && (
-          <input
-            type="text"
-            value={user.primaryEmailAddress.emailAddress}
-            disabled
-            className="w-full border border-border rounded-md px-3 py-2 bg-muted text-muted-foreground cursor-not-allowed"
-          />
-        )}
-
-        {/* Age */}
         <input
           type="number"
           placeholder="Age"
@@ -115,8 +90,12 @@ export default function OnboardingPage() {
           min={18}
           className="w-full border border-border rounded-md px-3 py-2"
         />
-
-        {/* Gender */}
+        <textarea
+          placeholder="Short bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          className="w-full border border-border rounded-md px-3 py-2"
+        />
         <select
           value={gender}
           onChange={(e) => setGender(e.target.value)}
@@ -127,8 +106,6 @@ export default function OnboardingPage() {
           <option value="Female">Female</option>
           <option value="Other">Other</option>
         </select>
-
-        {/* Interests */}
         <input
           type="text"
           placeholder="Interests (comma separated)"
@@ -137,12 +114,55 @@ export default function OnboardingPage() {
             setInterests(
               e.target.value
                 .split(",")
-                .map((item) => item.trim())
+                .map((i) => i.trim())
                 .filter(Boolean)
             )
           }
           className="w-full border border-border rounded-md px-3 py-2"
         />
+
+        {/* Cloudinary Upload */}
+        <div className="space-y-2">
+          <CldUploadButton
+            uploadPreset="default"
+            onSuccess={(result) => {
+              if (result?.info && typeof result.info !== "string") {
+                const info = result.info as CloudinaryUploadWidgetInfo;
+                setImages((prev) => [
+                  ...prev,
+                  {
+                    url: info.secure_url,
+                    publicId: info.public_id,
+                    order: prev.length,
+                  },
+                ]);
+              }
+            }}
+            options={{ maxFiles: 5 }}
+          >
+            <div className="w-full border border-dashed border-rose-400 rounded-md p-3 text-center cursor-pointer text-sm text-rose-500">
+              Upload Photos
+            </div>
+          </CldUploadButton>
+
+          {/* Image Previews */}
+          <div className="flex gap-2 overflow-x-auto">
+            {images.map((img, i) => (
+              <div
+                key={i}
+                className="relative w-20 h-20 rounded-md overflow-hidden"
+              >
+                <Image
+                  src={img.url}
+                  alt={`preview-${i}`}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
         <button
           type="submit"
@@ -151,8 +171,7 @@ export default function OnboardingPage() {
         >
           {loading ? "Saving..." : "Save Profile"}
         </button>
-
-        {error && <p className="text-red-500 text-sm">Error: {error}</p>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
       </form>
     </main>
   );

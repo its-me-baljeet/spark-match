@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
 import gqlClient from "@/services/graphql";
 import { CHECK_USER } from "@/utils/queries";
+import { LoaderPinwheelIcon } from "lucide-react";
 
 interface OnboardingGuardProps {
   children: ReactNode;
@@ -47,7 +48,9 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
   if (checking) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>Checking profile...</p>
+        <p>
+          <LoaderPinwheelIcon />
+        </p>
       </div>
     );
   }
