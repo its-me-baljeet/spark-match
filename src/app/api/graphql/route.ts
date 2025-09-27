@@ -2,8 +2,9 @@ import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import { ApolloServer } from "@apollo/server";
 import { NextRequest } from "next/server";
 import { typeDefs } from "@/app/api/graphql/typedefs";
-import { checkExistingUser, getCurrentUser, registerUser } from "./resolvers/user";
-
+import { checkExistingUser, getCurrentUser, registerUser, updateUser } from "./resolvers/user";
+import { GraphQLContext } from "@/types/graphql";
+import db from "@/services/prisma"; // ✅ your Prisma client
 
 const resolvers = {
   Query: {
@@ -12,17 +13,20 @@ const resolvers = {
   },
   Mutation: {
     registerUser,
-  }
+    updateUser,
+  },
 };
 
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+const server = new ApolloServer<GraphQLContext>({
+  typeDefs,
+  resolvers,
 });
 
-// Typescript: req has the type NextRequest
-const handler = startServerAndCreateNextHandler<NextRequest>(server, {
-    context: async req => ({ req }),
+const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(server, {
+  context: async (req) => ({
+    req,
+    db, // ✅ add Prisma to context
+  }),
 });
 
 export { handler as GET, handler as POST };

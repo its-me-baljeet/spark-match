@@ -6,6 +6,17 @@ import gqlClient from "@/services/graphql";
 import { GET_CURRENT_USER } from "@/utils/queries";
 import Image from "next/image";
 import { UserProfile } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { PencilIcon } from "lucide-react";
+import ProfileEditForm from "@/components/dialogs/edit-profile-dialog";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -19,9 +30,8 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const data: {
-          getCurrentUser: UserProfile | null;
-        } = await gqlClient.request(GET_CURRENT_USER, { clerkId: user.id });
+        const data: { getCurrentUser: UserProfile | null } =
+          await gqlClient.request(GET_CURRENT_USER, { clerkId: user.id });
         setProfile(data.getCurrentUser);
       } catch (err) {
         console.error(err);
@@ -34,53 +44,103 @@ export default function ProfilePage() {
     fetchProfile();
   }, [user?.id]);
 
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
-  if (error) return <p className="text-center mt-20 text-red-500">{error}</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-20 text-muted-foreground">Loading...</p>
+    );
+  if (error)
+    return <p className="text-center mt-20 text-destructive">{error}</p>;
+  if (!profile)
+    return (
+      <p className="text-center mt-20 text-muted-foreground">
+        Profile not found.
+      </p>
+    );
 
-  if (!profile) return <p className="text-center mt-20">Profile not found.</p>;
-  console.log(profile.images);
+  const mainPhoto = profile.photos?.[0];
+  const age = Math.floor(
+    (Date.now() - new Date(profile.birthday).getTime()) /
+      (1000 * 60 * 60 * 24 * 365.25)
+  );
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-8">
-      {/* Images Carousel */}
-      <div className="flex gap-2 overflow-x-auto mb-6">
-        {profile.images?.map((img: string, i: number) => (
-          <div
-            key={i}
-            className="relative w-40 h-40 rounded-md overflow-hidden flex-shrink-0"
-          >
-            <Image
-              src={img}
-              alt={`profile-${i}`}
-              fill
-              className="object-cover"
-            />
-          </div>
-        ))}
-      </div>
+    <main className="max-w-md mx-auto px-4 py-8 flex flex-col items-center space-y-6">
+      {/* Profile Photo */}
+      {mainPhoto && (
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="w-40 h-40 rounded-full overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform">
+              <Image
+                src={mainPhoto}
+                alt="Profile"
+                width={160}
+                height={160}
+                className="object-cover"
+              />
+            </div>
+          </DialogTrigger>
+
+          <DialogContent className="w-full max-w-3xl p-0 bg-background">
+            <DialogHeader>
+              <DialogTitle className="text-lg text-center">Photos</DialogTitle>
+            </DialogHeader>
+
+            <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              {profile.photos.map((p, i) => (
+                <div
+                  key={i}
+                  className="relative w-full min-w-full h-96 snap-center"
+                >
+                  <Image
+                    src={p}
+                    alt={`photo-${i}`}
+                    fill
+                    className="object-cover rounded-md"
+                  />
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Basic Info */}
-      <h1 className="text-3xl font-bold mb-2">
-        {profile.name}, {profile.age}
-      </h1>
-      <p className="text-muted-foreground mb-4">{profile.bio}</p>
-
-      {/* Interests */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {profile.interests.map((interest: string, i: number) => (
-          <span
-            key={i}
-            className="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-sm"
-          >
-            {interest}
-          </span>
-        ))}
+      <div className="text-center space-y-2">
+        <div className="flex items-center gap-5 justify-center">
+          <h1 className="text-3xl font-bold">
+            {profile.name}, {age}
+          </h1>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-fit bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">
+                <PencilIcon />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Profile</DialogTitle>
+              </DialogHeader>
+              <ProfileEditForm profile={profile} />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <p className="text-muted-foreground">{profile.bio}</p>
       </div>
 
-      {/* Edit Button */}
-      <button className="bg-gradient-to-r from-rose-500 to-orange-500 text-white px-6 py-2 rounded-md font-medium">
-        Edit Profile
-      </button>
+      {/* Preferences */}
+      {profile.preferences && (
+        <div className="flex flex-wrap justify-center gap-2">
+          {profile.preferences.gender && (
+            <Badge variant="secondary">{profile.preferences.gender}</Badge>
+          )}
+          <Badge variant="secondary">
+            Age: {profile.preferences.minAge}-{profile.preferences.maxAge}
+          </Badge>
+          <Badge variant="secondary">
+            Distance: {profile.preferences.distanceKm} km
+          </Badge>
+        </div>
+      )}
     </main>
   );
 }

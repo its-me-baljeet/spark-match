@@ -7,27 +7,33 @@ import { REGISTER_USER } from "@/utils/mutations";
 import { useRouter } from "next/navigation";
 import { CldUploadButton, CloudinaryUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
-import { RegisterUserArgs, UserImageInput } from "@/types";
+import { RegisterUserArgs, UserPhotoInput, UserPreferences } from "@/types";
 
 export default function OnboardingPage() {
   const { user } = useUser();
   const router = useRouter();
 
   const [name, setName] = useState("");
-  const [age, setAge] = useState<number | "">("");
+  const [birthday, setBirthday] = useState(""); // ISO date string
   const [bio, setBio] = useState("");
-  const [gender, setGender] = useState("");
-  const [interests, setInterests] = useState<string[]>([]);
-  const [images, setImages] = useState<UserImageInput[]>([]);
+  const [gender, setGender] = useState<"MALE" | "FEMALE" | "OTHER">("MALE");
+
+  const [preferences, setPreferences] = useState<UserPreferences>({
+    minAge: 18,
+    maxAge: 50,
+    distanceKm: 10,
+    gender: undefined,
+  });
+  const [images, setImages] = useState<UserPhotoInput[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
 
-  // Prefill with Clerk info
   useEffect(() => {
     if (user) {
       setName(user.fullName ?? "");
-      setBio(user.primaryEmailAddress?.emailAddress ?? "");
+      setEmail(user.primaryEmailAddress?.emailAddress ?? "");
       if (user.imageUrl) {
         setImages([
           { url: user.imageUrl, publicId: "clerk-profile", order: 0 },
@@ -43,11 +49,13 @@ export default function OnboardingPage() {
     const input: RegisterUserArgs = {
       clerkId: user.id,
       name,
-      age: age === "" ? 18 : Number(age),
+      email,
+      birthday: birthday || new Date().toISOString(), // fallback
       bio,
       gender,
-      interests,
-      images,
+      preferences,
+      photos: images,
+      location: { lat: 0, lng: 0 }, // temporary; replace with actual location if needed
     };
 
     try {
@@ -81,13 +89,10 @@ export default function OnboardingPage() {
           className="w-full border border-border rounded-md px-3 py-2"
         />
         <input
-          type="number"
-          placeholder="Age"
-          value={age}
-          onChange={(e) =>
-            setAge(e.target.value ? parseInt(e.target.value) : "")
-          }
-          min={18}
+          type="date"
+          placeholder="Birthday"
+          value={birthday}
+          onChange={(e) => setBirthday(e.target.value)}
           className="w-full border border-border rounded-md px-3 py-2"
         />
         <textarea
@@ -98,28 +103,69 @@ export default function OnboardingPage() {
         />
         <select
           value={gender}
-          onChange={(e) => setGender(e.target.value)}
-          className="w-full border border-border rounded-md px-3 py-2"
-        >
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Interests (comma separated)"
-          value={interests.join(", ")}
           onChange={(e) =>
-            setInterests(
-              e.target.value
-                .split(",")
-                .map((i) => i.trim())
-                .filter(Boolean)
-            )
+            setGender(e.target.value as "MALE" | "FEMALE" | "OTHER")
           }
           className="w-full border border-border rounded-md px-3 py-2"
-        />
+        >
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
+        </select>
+
+        {/* Preferences inputs */}
+        <div className="flex gap-2">
+          <input
+            type="number"
+            placeholder="Min Age"
+            value={preferences.minAge}
+            onChange={(e) =>
+              setPreferences({
+                ...preferences,
+                minAge: parseInt(e.target.value) || 18,
+              })
+            }
+            className="w-1/3 border border-border rounded-md px-3 py-2"
+          />
+          <input
+            type="number"
+            placeholder="Max Age"
+            value={preferences.maxAge}
+            onChange={(e) =>
+              setPreferences({
+                ...preferences,
+                maxAge: parseInt(e.target.value) || 50,
+              })
+            }
+            className="w-1/3 border border-border rounded-md px-3 py-2"
+          />
+          <input
+            type="number"
+            placeholder="Distance km"
+            value={preferences.distanceKm}
+            onChange={(e) =>
+              setPreferences({
+                ...preferences,
+                distanceKm: parseInt(e.target.value) || 10,
+              })
+            }
+            className="w-1/3 border border-border rounded-md px-3 py-2"
+          />
+        </div>
+        <select
+          value={preferences.gender ?? "MALE"}
+          onChange={(e) =>
+            setPreferences({
+              ...preferences,
+              gender: e.target.value as "MALE" | "FEMALE" | "OTHER",
+            })
+          }
+          className="w-full border border-border rounded-md px-3 py-2"
+        >
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
+        </select>
 
         {/* Cloudinary Upload */}
         <div className="space-y-2">
@@ -145,7 +191,6 @@ export default function OnboardingPage() {
             </div>
           </CldUploadButton>
 
-          {/* Image Previews */}
           <div className="flex gap-2 overflow-x-auto">
             {images.map((img, i) => (
               <div

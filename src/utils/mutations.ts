@@ -5,17 +5,53 @@ export const REGISTER_USER = gql`
     registerUser(input: $input) {
       id
       clerkId
+      email
       name
       age
       bio
       gender
-      interests
-      images {
-        url
-        publicId
-        order
+      birthday
+      photos
+      preferences {
+        minAge
+        maxAge
+        distanceKm
+        gender
+      }
+      location {
+        lat
+        lng
       }
       createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_USER = gql`
+  mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      id
+      clerkId
+      email
+      name
+      age
+      bio
+      gender
+      birthday
+      photos
+      preferences {
+        minAge
+        maxAge
+        distanceKm
+        gender
+      }
+      location {
+        lat
+        lng
+      }
+      createdAt
+      updatedAt
     }
   }
 `;

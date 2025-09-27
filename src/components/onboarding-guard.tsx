@@ -25,18 +25,27 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
         return;
       }
 
+      // Skip onboarding check if already on onboarding page
+      if (pathname === "/onboarding") {
+        setChecking(false);
+        return;
+      }
+
       try {
         const data: { checkExistingUser: boolean } = await gqlClient.request(
           CHECK_USER,
-          { clerkId: user.id }
+          { clerkId: user.id } // Changed from email to clerkId
         );
+        
         if (!data?.checkExistingUser) {
-          // store the path they were trying to access
+          // Store the path they were trying to access
           sessionStorage.setItem("redirectAfterOnboarding", pathname);
           router.push("/onboarding");
         }
       } catch (err) {
         console.error("OnboardingGuard error:", err);
+        // On error, allow through but maybe redirect to onboarding to be safe
+        router.push("/onboarding");
       } finally {
         setChecking(false);
       }
@@ -48,9 +57,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
   if (checking) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>
-          <LoaderPinwheelIcon />
-        </p>
+        <LoaderPinwheelIcon className="animate-spin" />
       </div>
     );
   }
