@@ -33,3 +33,31 @@ export const GET_CURRENT_USER = gql`
     }
   }
 `;
+
+export const GET_PREFERRED_USERS = gql`
+  query Query($clerkId: String!) {
+    getPreferredUsers(clerkId: $clerkId) {
+      id
+      clerkId
+      email
+      name
+      age
+      bio
+      gender
+      birthday
+      photos
+      preferences {
+        minAge
+        maxAge
+        distanceKm
+        gender
+      }
+      location {
+        lat
+        lng
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;

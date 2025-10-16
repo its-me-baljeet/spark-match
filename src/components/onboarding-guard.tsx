@@ -1,11 +1,11 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
-import { useRouter, usePathname } from "next/navigation";
 import gqlClient from "@/services/graphql";
 import { CHECK_USER } from "@/utils/queries";
-import { LoaderPinwheelIcon } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { LoadingSpinner } from "./loader/loading-spinner";
 
 interface OnboardingGuardProps {
   children: ReactNode;
@@ -57,7 +57,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
   if (checking) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <LoaderPinwheelIcon className="animate-spin" />
+        <LoadingSpinner />
       </div>
     );
   }

@@ -93,6 +93,7 @@ export const typeDefs = gql`
   type Query {
     checkExistingUser(clerkId: String!): Boolean!
     getCurrentUser(clerkId: String!): User
+    getPreferredUsers(clerkId: String!): [User!]!
   }
 
   type Mutation {
