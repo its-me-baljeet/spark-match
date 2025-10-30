@@ -99,5 +99,6 @@ export const typeDefs = gql`
   type Mutation {
     registerUser(input: RegisterUserInput!): User!
     updateUser(input: UpdateUserInput!): User!
+    likeUser(fromClerkId: String!, toUserId: String!): Boolean!
   }
 `;

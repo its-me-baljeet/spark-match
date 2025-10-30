@@ -46,8 +46,7 @@ export async function getPreferredUsers(
 ) {
   const { limit = 10, cursor, clerkId } = args;
 
-  
-  // 1. Get the current user (needed for preferences filtering)
+  // 1️⃣ Ensure user exists
   if (!clerkId) throw new Error("Unauthorized");
 
   const currentUser = await ctx.db.user.findUnique({
@@ -57,13 +56,24 @@ export async function getPreferredUsers(
 
   if (!currentUser) throw new Error("User not found");
 
-  // 2. Build filters based on preferences
-  const where: Prisma.UserWhereInput = {};
+  // 2️⃣ Get list of users the current user already liked
+  const likedUsers = await ctx.db.like.findMany({
+    where: { fromUserId: currentUser.id },
+    select: { toUserId: true },
+  });
+
+  const likedUserIds = likedUsers.map((like) => like.toUserId);
+
+  // 3️⃣ Build filters based on preferences
+  const where: Prisma.UserWhereInput = {
+    id: { notIn: likedUserIds }, // ✅ Exclude liked users
+    clerkId: { not: clerkId }, // ✅ Exclude self
+  };
 
   if (currentUser.preferences) {
-    const { minAge, maxAge, gender, distanceKm } = currentUser.preferences;
+    const { minAge, maxAge, gender } = currentUser.preferences;
 
-    // Age filter
+    // 🎂 Age filter
     const today = new Date();
     const maxBirthday = new Date(
       today.getFullYear() - minAge,
@@ -77,36 +87,30 @@ export async function getPreferredUsers(
     );
 
     where.birthday = {
-      gte: minBirthday, // older than maxAge
-      lte: maxBirthday, // younger than minAge
+      gte: minBirthday,
+      lte: maxBirthday,
     };
 
-    // Gender filter
+    // 🚻 Gender filter
     if (gender) {
       where.gender = gender;
     }
-
-    // TODO: Distance filter
-    // For now, skipping geospatial logic.
-    // You’d normally do haversine formula + raw query, or PostGIS / MongoDB geo queries.
   }
 
-  // 3. Fetch paginated users
+  // 4️⃣ Fetch paginated users
   const users = await ctx.db.user.findMany({
     take: limit,
     skip: cursor ? 1 : 0,
     cursor: cursor ? { id: cursor } : undefined,
-    where: {
-      ...where,
-      clerkId: { not: clerkId }, // exclude self
-    },
+    where,
     include: { photos: true, preferences: true },
     orderBy: { createdAt: "desc" },
   });
 
-  // 4. Map DB → GraphQL types
+  // 5️⃣ Map DB → GraphQL type
   return users.map(formatUser);
 }
+
 
 /**
  * ✅ Register a new user with preferences

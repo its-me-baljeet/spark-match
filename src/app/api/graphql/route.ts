@@ -11,6 +11,7 @@ import {
 } from "./resolvers/user";
 import { GraphQLContext } from "@/types/graphql";
 import db from "@/services/prisma"; // ✅ your Prisma client
+import { likeUser } from "./resolvers/match";
 
 const resolvers = {
   Query: {
@@ -21,6 +22,7 @@ const resolvers = {
   Mutation: {
     registerUser,
     updateUser,
+    likeUser,
   },
 };
 

@@ -55,3 +55,9 @@ export const UPDATE_USER = gql`
     }
   }
 `;
+
+export const LIKE_USER = gql`
+  mutation LikeUser($fromClerkId: String!, $toUserId: String!) {
+    likeUser(fromClerkId: $fromClerkId, toUserId: $toUserId)
+  }
+`;
