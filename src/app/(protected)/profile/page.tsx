@@ -94,6 +94,11 @@ export default function ProfilePage() {
         <Card gradient className="overflow-hidden">
           {mainPhoto ? (
             <div className="relative h-60 md:h-[500px]">
+              {/* Online Dot */}
+              {profile.isOnline && (
+                <div className="absolute top-6 left-6 w-4 h-4 bg-green-500 rounded-full border-4 border-white dark:border-black animate-pulse z-10"></div>
+              )}
+
               <Dialog>
                 <DialogTrigger asChild>
                   <div className="w-full h-full cursor-pointer group">

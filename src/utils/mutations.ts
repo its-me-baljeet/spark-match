@@ -61,3 +61,9 @@ export const LIKE_USER = gql`
     likeUser(fromClerkId: $fromClerkId, toUserId: $toUserId)
   }
 `;
+
+export const PASS_USER = gql`
+  mutation PassUser($fromClerkId: String!, $toUserId: String!) {
+    passUser(fromClerkId: $fromClerkId, toUserId: $toUserId)
+  }
+`;

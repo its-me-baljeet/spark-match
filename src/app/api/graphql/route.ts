@@ -6,6 +6,7 @@ import {
   checkExistingUser,
   getCurrentUser,
   getPreferredUsers,
+  passUser,
   registerUser,
   updateUser,
 } from "./resolvers/user";
@@ -23,6 +24,7 @@ const resolvers = {
     registerUser,
     updateUser,
     likeUser,
+    passUser,
   },
 };
 

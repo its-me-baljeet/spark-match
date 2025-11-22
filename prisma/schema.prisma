@@ -26,11 +26,19 @@ model User {
   photos      Photo[]
   preferences Preference?
 
-  likesSent        Like[]            @relation("LikesSent")
-  likesReceived    Like[]            @relation("LikesReceived")
+  // relations
+  likesSent         Like[]            @relation("LikesSent")
+  likesReceived     Like[]            @relation("LikesReceived")
   matchParticipants MatchParticipant[]
   messages          Message[]
 
+  passSent      Pass[] @relation("PassSent")       
+  passReceived  Pass[] @relation("PassReceived")   
+
+  lastActiveAt   DateTime @default(now())
+  onboardingDone Boolean  @default(false)
+  isBanned       Boolean  @default(false)
+  
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -55,6 +63,16 @@ model Preference {
   gender      Gender?
 }
 
+model Pass {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  fromUser   User     @relation("PassSent", fields: [fromUserId], references: [id])
+  fromUserId String   @db.ObjectId
+  toUser     User     @relation("PassReceived", fields: [toUserId], references: [id])
+  toUserId   String   @db.ObjectId
+  createdAt  DateTime @default(now())
+}
+
+
 model Like {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   fromUser   User     @relation("LikesSent", fields: [fromUserId], references: [id])
@@ -69,6 +87,8 @@ model Match {
   participants MatchParticipant[]
   messages     Message[]
   createdAt    DateTime           @default(now())
+
+  @@index([createdAt])
 }
 
 model MatchParticipant {
@@ -88,6 +108,8 @@ model Message {
   senderId  String   @db.ObjectId
   content   String
   createdAt DateTime @default(now())
+
+  @@index([matchId, createdAt])
 }
 
 type Location {

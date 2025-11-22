@@ -29,6 +29,11 @@ export async function getCurrentUser(
 ) {
   if (!clerkId) return null;
 
+  await ctx.db.user.update({
+    where: { clerkId },
+    data: { lastActiveAt: new Date() },
+  });
+
   const user = await ctx.db.user.findUnique({
     where: { clerkId },
     include: { photos: true, preferences: true },
@@ -41,13 +46,21 @@ export async function getCurrentUser(
 
 export async function getPreferredUsers(
   _parent: unknown,
-  args: { limit?: number; cursor?: string; clerkId: string },
+  args: {
+    limit?: number;
+    cursor?: string;
+    clerkId: string;
+    distanceKm?: number;
+    onlyOnline?: boolean;
+  },
   ctx: GraphQLContext
 ) {
-  const { limit = 10, cursor, clerkId } = args;
+  const { limit = 10, cursor, clerkId, distanceKm, onlyOnline } = args;
 
-  // 1️⃣ Ensure user exists
-  if (!clerkId) throw new Error("Unauthorized");
+  await ctx.db.user.update({
+    where: { clerkId },
+    data: { lastActiveAt: new Date() },
+  });
 
   const currentUser = await ctx.db.user.findUnique({
     where: { clerkId },
@@ -56,7 +69,6 @@ export async function getPreferredUsers(
 
   if (!currentUser) throw new Error("User not found");
 
-  // 2️⃣ Get list of users the current user already liked
   const likedUsers = await ctx.db.like.findMany({
     where: { fromUserId: currentUser.id },
     select: { toUserId: true },
@@ -64,41 +76,55 @@ export async function getPreferredUsers(
 
   const likedUserIds = likedUsers.map((like) => like.toUserId);
 
-  // 3️⃣ Build filters based on preferences
+  const passedUsers = await ctx.db.pass.findMany({
+    where: { fromUserId: currentUser.id },
+    select: { toUserId: true },
+  });
+
+  const passedUserIds = passedUsers.map((pass) => pass.toUserId);
+
   const where: Prisma.UserWhereInput = {
-    id: { notIn: likedUserIds }, // ✅ Exclude liked users
-    clerkId: { not: clerkId }, // ✅ Exclude self
+    id: { notIn: [...likedUserIds, ...passedUserIds] },
+    clerkId: { not: clerkId },
   };
 
   if (currentUser.preferences) {
     const { minAge, maxAge, gender } = currentUser.preferences;
-
-    // 🎂 Age filter
     const today = new Date();
-    const maxBirthday = new Date(
-      today.getFullYear() - minAge,
-      today.getMonth(),
-      today.getDate()
-    );
-    const minBirthday = new Date(
-      today.getFullYear() - maxAge,
-      today.getMonth(),
-      today.getDate()
-    );
 
     where.birthday = {
-      gte: minBirthday,
-      lte: maxBirthday,
+      gte: new Date(
+        today.getFullYear() - maxAge,
+        today.getMonth(),
+        today.getDate()
+      ),
+      lte: new Date(
+        today.getFullYear() - minAge,
+        today.getMonth(),
+        today.getDate()
+      ),
     };
 
-    // 🚻 Gender filter
-    if (gender) {
-      where.gender = gender;
-    }
+    if (gender) where.gender = gender;
   }
 
-  // 4️⃣ Fetch paginated users
-  const users = await ctx.db.user.findMany({
+  // 🔥 Online filter
+  if (onlyOnline) {
+    const threshold = new Date(Date.now() - 5 * 60 * 1000);
+    where.lastActiveAt = { gte: threshold };
+  }
+
+  // 📍 Distance filter (simple bounding box approximation)
+  // if (distanceKm) {
+  //   const { lat, lng } = currentUser.location;
+  //   const degreeOffset = distanceKm / 111; // Rough 111 km per degree
+  //   where.location = {
+  //     lat: { gte: lat - degreeOffset, lte: lat + degreeOffset },
+  //     lng: { gte: lng - degreeOffset, lte: lng + degreeOffset },
+  //   };
+  // }
+
+  let users = await ctx.db.user.findMany({
     take: limit,
     skip: cursor ? 1 : 0,
     cursor: cursor ? { id: cursor } : undefined,
@@ -107,10 +133,27 @@ export async function getPreferredUsers(
     orderBy: { createdAt: "desc" },
   });
 
-  // 5️⃣ Map DB → GraphQL type
+  if (distanceKm && currentUser.location) {
+    const toRad = (v: number) => (v * Math.PI) / 180;
+    users = users.filter((u) => {
+      if (!u.location) return false; // If no location, exclude user
+
+      const d =
+        6371 *
+        Math.acos(
+          Math.sin(toRad(currentUser.location.lat)) *
+            Math.sin(toRad(u.location.lat)) +
+            Math.cos(toRad(currentUser.location.lat)) *
+              Math.cos(toRad(u.location.lat)) *
+              Math.cos(toRad(u.location.lng - currentUser.location.lng))
+        );
+
+      return d <= distanceKm;
+    });
+  }
+
   return users.map(formatUser);
 }
-
 
 /**
  * ✅ Register a new user with preferences
@@ -190,6 +233,11 @@ export async function updateUser(
   });
   if (!user) throw new Error("User not found");
 
+  await ctx.db.user.update({
+    where: { clerkId: input.clerkId },
+    data: { lastActiveAt: new Date() },
+  });
+
   // 🖼️ Handle photo
   await syncPhotos(
     user.id,
@@ -217,4 +265,25 @@ export async function updateUser(
   });
 
   return formatUser(updatedUser);
+}
+
+// In your GraphQL mutation resolver
+export async function passUser(
+  _parent: unknown,
+  { fromClerkId, toUserId }: { fromClerkId: string; toUserId: string },
+  ctx: GraphQLContext
+) {
+  const fromUser = await ctx.db.user.findUnique({
+    where: { clerkId: fromClerkId },
+  });
+  if (!fromUser) throw new Error("User not found");
+
+  await ctx.db.pass.create({
+    data: {
+      fromUserId: fromUser.id,
+      toUserId,
+    },
+  });
+
+  return true;
 }

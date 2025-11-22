@@ -25,6 +25,8 @@ export const typeDefs = gql`
     birthday: String!
     photos: [String!]!
     preferences: UserPreference
+    isOnline: Boolean!
+    lastActiveAt: String!
     location: Location!
     createdAt: String!
     updatedAt: String!
@@ -93,12 +95,19 @@ export const typeDefs = gql`
   type Query {
     checkExistingUser(clerkId: String!): Boolean!
     getCurrentUser(clerkId: String!): User
-    getPreferredUsers(clerkId: String!): [User!]!
+    getPreferredUsers(
+      clerkId: String!
+      limit: Int
+      cursor: String
+      distanceKm: Int
+      onlyOnline: Boolean
+    ): [User!]!
   }
 
   type Mutation {
     registerUser(input: RegisterUserInput!): User!
     updateUser(input: UpdateUserInput!): User!
     likeUser(fromClerkId: String!, toUserId: String!): Boolean!
+    passUser(fromClerkId: String!, toUserId: String!): Boolean!
   }
 `;

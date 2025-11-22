@@ -76,6 +76,11 @@ export const TinderCard: React.FC<TinderCardProps> = ({
         style={{ display: "block" }}
       >
         <div className="relative w-full h-full bg-gray-200/10">
+          {/* Online Indicator */}
+          {user.isOnline && (
+            <div className="absolute top-3 left-3 w-4 h-4 bg-green-500 rounded-full border-4 border-white dark:border-gray-900 animate-pulse z-10"></div>
+          )}
+
           <Image
             src={user.photos?.[0] ?? "/placeholder.jpg"}
             alt={`${user.name} photo`}

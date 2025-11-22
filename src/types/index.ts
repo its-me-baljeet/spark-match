@@ -49,7 +49,9 @@ export interface UserProfile {
   gender: "MALE" | "FEMALE" | "OTHER";
   photos: string[];
   preferences?: UserPreferences;
+  lastActiveAt: string;
   location: { lat: number; lng: number };
+  isOnline: boolean;
   createdAt: string;
   updatedAt: string;
 }

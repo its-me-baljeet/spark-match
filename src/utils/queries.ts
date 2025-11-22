@@ -28,6 +28,7 @@ export const GET_CURRENT_USER = gql`
         lat
         lng
       }
+      isOnline
       createdAt
       updatedAt
     }
@@ -35,29 +36,27 @@ export const GET_CURRENT_USER = gql`
 `;
 
 export const GET_PREFERRED_USERS = gql`
-  query Query($clerkId: String!) {
-    getPreferredUsers(clerkId: $clerkId) {
+  query Query(
+    $clerkId: String!
+    $limit: Int
+    $cursor: String
+    $distanceKm: Int
+    $onlyOnline: Boolean
+  ) {
+    getPreferredUsers(
+      clerkId: $clerkId
+      limit: $limit
+      cursor: $cursor
+      distanceKm: $distanceKm
+      onlyOnline: $onlyOnline
+    ) {
       id
-      clerkId
-      email
       name
       age
-      bio
-      gender
-      birthday
       photos
-      preferences {
-        minAge
-        maxAge
-        distanceKm
-        gender
-      }
-      location {
-        lat
-        lng
-      }
-      createdAt
-      updatedAt
+      bio
+      isOnline
     }
   }
 `;
+
