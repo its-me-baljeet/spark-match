@@ -102,6 +102,7 @@ export const typeDefs = gql`
       distanceKm: Int
       onlyOnline: Boolean
     ): [User!]!
+    getUsersWhoLikedMe(clerkId: String!): [User!]!
   }
 
   type Mutation {
@@ -109,5 +110,6 @@ export const typeDefs = gql`
     updateUser(input: UpdateUserInput!): User!
     likeUser(fromClerkId: String!, toUserId: String!): Boolean!
     passUser(fromClerkId: String!, toUserId: String!): Boolean!
+    undoPass(fromClerkId: String!, toUserId: String!): Boolean!
   }
 `;

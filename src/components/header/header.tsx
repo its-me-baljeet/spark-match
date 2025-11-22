@@ -14,7 +14,10 @@ export default function Header() {
     <header className="sticky top-0 left-0 h-14 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border bg-background z-50">
       {/* Brand */}
       <div className="flex items-center">
-        <Link href={'/'} className="text-xl sm:text-2xl font-bold text-rose-500 tracking-tight">
+        <Link
+          href={"/"}
+          className="text-xl sm:text-2xl font-bold text-rose-500 tracking-tight"
+        >
           MatchSpark
         </Link>
       </div>
@@ -22,19 +25,9 @@ export default function Header() {
       {/* Right Section */}
       <div className="flex items-center gap-3 sm:gap-4">
         <ModeToggle />
-          <Link
-            href={"/profile"}
-            
-          >
-            Profile
-          </Link>
-          <Link
-            href={"/discover"}
-            
-          >
-            Discover
-          </Link>
-
+        <Link href={"/profile"}>Profile</Link>
+        <Link href={"/discover"}>Discover</Link>
+        <Link href={"/likes"}>Likes</Link>
         {/* Desktop Auth Buttons */}
         <div className="hidden sm:flex items-center gap-3 sm:gap-4">
           <SignedOut>

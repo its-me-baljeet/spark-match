@@ -6,8 +6,10 @@ import {
   checkExistingUser,
   getCurrentUser,
   getPreferredUsers,
+  getUsersWhoLikedMe,
   passUser,
   registerUser,
+  undoPass,
   updateUser,
 } from "./resolvers/user";
 import { GraphQLContext } from "@/types/graphql";
@@ -19,12 +21,14 @@ const resolvers = {
     checkExistingUser,
     getCurrentUser,
     getPreferredUsers,
+    getUsersWhoLikedMe,
   },
   Mutation: {
     registerUser,
     updateUser,
     likeUser,
     passUser,
+    undoPass,
   },
 };
 

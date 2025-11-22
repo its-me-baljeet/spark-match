@@ -278,6 +278,15 @@ export async function passUser(
   });
   if (!fromUser) throw new Error("User not found");
 
+  // 1️⃣ Remove the like if exists (since the user passed them)
+  await ctx.db.like.deleteMany({
+    where: {
+      fromUserId: toUserId, // OTHER user liked me
+      toUserId: fromUser.id, // I am the one passing
+    },
+  });
+
+  // 2️⃣ Store the pass
   await ctx.db.pass.create({
     data: {
       fromUserId: fromUser.id,
@@ -286,4 +295,65 @@ export async function passUser(
   });
 
   return true;
+}
+
+export async function undoPass(
+  _parent: unknown,
+  { fromClerkId, toUserId }: { fromClerkId: string; toUserId: string },
+  ctx: GraphQLContext
+) {
+  try {
+    const user = await ctx.db.user.findUnique({
+      where: { clerkId: fromClerkId },
+    });
+    if (!user) throw new Error("User not found");
+
+    // Remove pass interaction
+    await ctx.db.pass.deleteMany({
+      where: {
+        fromUserId: user.id,
+        toUserId: toUserId,
+      },
+    });
+
+    return true; // 👈 IMPORTANT! return a Boolean
+  } catch (err) {
+    console.error("undoPass error:", err);
+    return false; // 👈 Still return something
+  }
+}
+export async function getUsersWhoLikedMe(
+  _parent: unknown,
+  args: { clerkId: string },
+  ctx: GraphQLContext
+) {
+  const { clerkId } = args;
+
+  const currentUser = await ctx.db.user.findUnique({ where: { clerkId } });
+  if (!currentUser) throw new Error("User not found");
+
+  const users = await ctx.db.user.findMany({
+    where: {
+      // 1️⃣ They liked me
+      likesSent: {
+        some: { toUserId: currentUser.id },
+      },
+
+      // 2️⃣ I haven't liked them back
+      likesReceived: {
+        none: { fromUserId: currentUser.id },
+      },
+
+      // 3️⃣ I haven't passed them either
+      passSent: {
+        none: { fromUserId: currentUser.id },
+      },
+
+      // 4️⃣ Ignore my own profile
+      clerkId: { not: clerkId },
+    },
+    include: { photos: true, preferences: true },
+  });
+
+  return users.map(formatUser);
 }

@@ -60,3 +60,16 @@ export const GET_PREFERRED_USERS = gql`
   }
 `;
 
+
+export const GET_USERS_WHO_LIKED_ME = gql`
+  query GetUsersWhoLikedMe($clerkId: String!) {
+    getUsersWhoLikedMe(clerkId: $clerkId) {
+      id
+      name
+      age
+      photos
+      bio
+      isOnline
+    }
+  }
+`;

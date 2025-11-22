@@ -13,14 +13,14 @@ export async function likeUser(
   });
   if (!fromUser) throw new Error("User not found");
 
-  // 2️⃣ Check if user already liked this person
+  // 2️⃣ Check if already liked this user
   const existingLike = await ctx.db.like.findFirst({
     where: {
       fromUserId: fromUser.id,
       toUserId,
     },
   });
-  if (existingLike) return false; // already liked before
+  if (existingLike) return false;
 
   // 3️⃣ Create the like
   await ctx.db.like.create({
@@ -30,7 +30,7 @@ export async function likeUser(
     },
   });
 
-  // 4️⃣ Check if the other user liked back (=> MATCH)
+  // 4️⃣ Check mutual like
   const mutualLike = await ctx.db.like.findFirst({
     where: {
       fromUserId: toUserId,
@@ -39,7 +39,7 @@ export async function likeUser(
   });
 
   if (mutualLike) {
-    // 💞 Create a match
+    // 💞 Create match
     const match = await ctx.db.match.create({
       data: {
         participants: {
@@ -50,6 +50,17 @@ export async function likeUser(
         },
       },
     });
+
+    // 🔥 Remove both like records after match is created
+    await ctx.db.like.deleteMany({
+      where: {
+        OR: [
+          { fromUserId: fromUser.id, toUserId },
+          { fromUserId: toUserId, toUserId: fromUser.id },
+        ],
+      },
+    });
+
     console.log("💖 Match created:", match.id);
   }
 
