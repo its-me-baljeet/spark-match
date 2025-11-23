@@ -29,14 +29,14 @@ export function formatUser(
   const isOnline =
     isValidTimestamp && nowUTC - lastActiveUTC <= ONLINE_THRESHOLD_MS;
 
-  console.log({
-    lastActiveAt: user.lastActiveAt,
-    lastActiveUTC,
-    nowUTC,
-    onlineThreshold: ONLINE_THRESHOLD_MS,
-    isValidTimestamp,
-    isOnline,
-  });
+  // console.log({
+  //   lastActiveAt: user.lastActiveAt,
+  //   lastActiveUTC,
+  //   nowUTC,
+  //   onlineThreshold: ONLINE_THRESHOLD_MS,
+  //   isValidTimestamp,
+  //   isOnline,
+  // });
   return {
     id: user.id,
     clerkId: user.clerkId,

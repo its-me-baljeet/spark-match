@@ -24,8 +24,12 @@ interface ProfileEditFormProps {
   onClose?: () => void;
 }
 
-// Location Picker Component
-function LocationPicker({ location, onChange, onLocationFetch }: {
+// 📍 Location Picker Component
+function LocationPicker({
+  location,
+  onChange,
+  onLocationFetch,
+}: {
   location: { lat: number; lng: number };
   onChange: (location: { lat: number; lng: number }) => void;
   onLocationFetch: () => void;
@@ -97,8 +101,13 @@ function LocationPicker({ location, onChange, onLocationFetch }: {
               type="number"
               step="any"
               value={location.lat}
-              onChange={(e) => onChange({ ...location, lat: parseFloat(e.target.value) || 0 })}
-              className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all duration-200 text-foreground"
+              onChange={(e) =>
+                onChange({
+                  ...location,
+                  lat: parseFloat(e.target.value) || 0,
+                })
+              }
+              className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-foreground"
               placeholder="0.0000"
             />
           </div>
@@ -110,8 +119,13 @@ function LocationPicker({ location, onChange, onLocationFetch }: {
               type="number"
               step="any"
               value={location.lng}
-              onChange={(e) => onChange({ ...location, lng: parseFloat(e.target.value) || 0 })}
-              className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all duration-200 text-foreground"
+              onChange={(e) =>
+                onChange({
+                  ...location,
+                  lng: parseFloat(e.target.value) || 0,
+                })
+              }
+              className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-foreground"
               placeholder="0.0000"
             />
           </div>
@@ -121,13 +135,18 @@ function LocationPicker({ location, onChange, onLocationFetch }: {
   );
 }
 
-export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileEditFormProps) {
+export default function ProfileEditForm({
+  profile,
+  onUpdate,
+  onClose,
+}: ProfileEditFormProps) {
   const [form, setForm] = useState({
     name: profile.name,
     bio: profile.bio || "",
     gender: profile.gender,
     birthday: profile.birthday.split("T")[0],
     location: profile.location,
+    // 🔹 Keep photos as string[] to match UserProfile
     photos: profile.photos || [],
     preferences: {
       minAge: profile.preferences?.minAge || 18,
@@ -141,13 +160,19 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
+  const handleChange = <K extends keyof typeof form>(
+    key: K,
+    value: (typeof form)[K]
+  ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setError(null);
     setSuccess(false);
   };
 
-  const handlePreferencesChange = <K extends keyof PreferencesForm>(key: K, value: PreferencesForm[K]) => {
+  const handlePreferencesChange = <K extends keyof PreferencesForm>(
+    key: K,
+    value: PreferencesForm[K]
+  ) => {
     setForm((prev) => ({
       ...prev,
       preferences: { ...prev.preferences, [key]: value },
@@ -165,7 +190,7 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
       setSaving(true);
       setError(null);
 
-      // Optimistic update
+      // 🔹 Optimistic update – still using photos as string[]
       const optimisticProfile: UserProfile = {
         ...profile,
         name: form.name,
@@ -174,9 +199,17 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
         birthday: form.birthday,
         location: form.location,
         preferences: form.preferences,
+        photos: form.photos,
       };
-
       onUpdate?.(optimisticProfile);
+
+      // 🔹 Convert string[] → UserPhotoUpsertInput[]
+      const photoInputs =
+        form.photos?.map((url, index) => ({
+          url,
+          order: index,
+          publicId: `user-${profile.clerkId}-${index}`, // synthetic but okay for now
+        })) ?? [];
 
       const response: { updateUser: UserProfile } = await gqlClient.request(
         UPDATE_USER,
@@ -188,11 +221,7 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
             gender: form.gender,
             birthday: form.birthday,
             location: form.location,
-            photos: form.photos.map((url, index) => ({
-              url,
-              order: index,
-              publicId: `user-${profile.clerkId}-${index}`,
-            })),
+            photos: photoInputs,
             preferences: {
               minAge: form.preferences.minAge,
               maxAge: form.preferences.maxAge,
@@ -203,17 +232,13 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
         }
       );
 
-      // Update with actual response
       onUpdate?.(response.updateUser);
       setSuccess(true);
 
-      setTimeout(() => {
-        onClose?.();
-      }, 1000);
+      setTimeout(() => onClose?.(), 1000);
     } catch (err) {
       console.error("Update error:", err);
       setError(err instanceof Error ? err.message : "Failed to update profile");
-      // Revert optimistic update on error
       onUpdate?.(profile);
     } finally {
       setSaving(false);
@@ -228,11 +253,11 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
       {/* Basic Information */}
       <div className="space-y-6">
         <SectionHeader
-          title="Basic Information" 
+          title="Basic Information"
           icon={<User className="h-4 w-4" />}
           subtitle="Update your personal details"
         />
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-foreground mb-3">
@@ -258,7 +283,9 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
               className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all duration-200 text-foreground min-h-[120px] resize-none"
               maxLength={500}
             />
-            <p className="text-xs text-muted-foreground text-right mt-2">{form.bio.length}/500</p>
+            <p className="text-xs text-muted-foreground text-right mt-2">
+              {form.bio.length}/500
+            </p>
           </div>
 
           <div>
@@ -266,15 +293,15 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
               Gender
             </label>
             <div className="grid grid-cols-3 gap-3">
-              {(['MALE', 'FEMALE', 'OTHER'] as const).map((option) => (
+              {(["MALE", "FEMALE", "OTHER"] as const).map((option) => (
                 <button
                   key={option}
                   type="button"
                   onClick={() => handleChange("gender", option)}
                   className={`py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                     form.gender === option
-                      ? 'bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white shadow-lg'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      ? "bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white shadow-lg"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
                   {option.charAt(0) + option.slice(1).toLowerCase()}
@@ -300,12 +327,13 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
 
       {/* Photos Section */}
       <div className="space-y-6">
-        <SectionHeader 
-          title="Photos" 
+        <SectionHeader
+          title="Photos"
           icon={<Camera className="h-4 w-4" />}
           subtitle="Manage your profile photos"
         />
-        
+
+        {/* 🔹 Pass string[] and keep mapping inside PhotoManager */}
         <PhotoManager
           photos={form.photos}
           onChange={(photos) => handleChange("photos", photos)}
@@ -315,12 +343,12 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
 
       {/* Location */}
       <div className="space-y-6">
-        <SectionHeader 
-          title="Location" 
+        <SectionHeader
+          title="Location"
           icon={<MapPin className="h-4 w-4" />}
           subtitle="Update your location for better matches"
         />
-        
+
         <LocationPicker
           location={form.location}
           onChange={(location) => handleChange("location", location)}
@@ -330,12 +358,12 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
 
       {/* Dating Preferences */}
       <div className="space-y-6">
-        <SectionHeader 
-          title="Dating Preferences" 
+        <SectionHeader
+          title="Dating Preferences"
           icon={<Settings className="h-4 w-4" />}
           subtitle="Help us find your perfect matches"
         />
-        
+
         <div className="space-y-6">
           <div className="p-5 bg-gradient-to-br from-pink-50/50 to-orange-50/50 dark:from-pink-500/5 dark:to-orange-500/5 rounded-2xl border border-pink-200/50 dark:border-pink-500/10">
             <RangeSlider
@@ -355,7 +383,9 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
               min={1}
               max={200}
               value={form.preferences.distanceKm}
-              onChange={(value) => handlePreferencesChange("distanceKm", value)}
+              onChange={(value) =>
+                handlePreferencesChange("distanceKm", value)
+              }
               label="Maximum Distance"
               unit="km"
             />
@@ -367,21 +397,26 @@ export default function ProfileEditForm({ profile, onUpdate, onClose }: ProfileE
             </label>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { value: '', label: 'Any' },
-                { value: 'MALE', label: 'Male' },
-                { value: 'FEMALE', label: 'Female' },
-                { value: 'OTHER', label: 'Other' }
+                { value: "", label: "Any" },
+                { value: "MALE", label: "Male" },
+                { value: "FEMALE", label: "Female" },
+                { value: "OTHER", label: "Other" },
               ].map((option) => (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => handlePreferencesChange("gender", 
-                    option.value ? (option.value as "MALE" | "FEMALE" | "OTHER") : undefined
-                  )}
+                  onClick={() =>
+                    handlePreferencesChange(
+                      "gender",
+                      option.value
+                        ? (option.value as "MALE" | "FEMALE" | "OTHER")
+                        : undefined
+                    )
+                  }
                   className={`py-3 px-3 rounded-xl font-medium transition-all duration-200 text-sm ${
-                    (form.preferences.gender || '') === option.value
-                      ? 'bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white shadow-lg'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    (form.preferences.gender || "") === option.value
+                      ? "bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white shadow-lg"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
                   {option.label}

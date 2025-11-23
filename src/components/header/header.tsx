@@ -28,6 +28,10 @@ export default function Header() {
         <Link href={"/profile"}>Profile</Link>
         <Link href={"/discover"}>Discover</Link>
         <Link href={"/likes"}>Likes</Link>
+        <Link href="/matches" className="hover:text-pink-500">
+          Matches
+        </Link>
+
         {/* Desktop Auth Buttons */}
         <div className="hidden sm:flex items-center gap-3 sm:gap-4">
           <SignedOut>

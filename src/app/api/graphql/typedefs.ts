@@ -103,6 +103,7 @@ export const typeDefs = gql`
       onlyOnline: Boolean
     ): [User!]!
     getUsersWhoLikedMe(clerkId: String!): [User!]!
+    getMyMatches(clerkId: String!): [User!]!
   }
 
   type Mutation {

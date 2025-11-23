@@ -1,25 +1,25 @@
 "use client";
 
+import { TinderCard } from "@/components/discover/tinder-card";
 import gqlClient from "@/services/graphql";
+import { UserProfile } from "@/types";
+import { UNDO_PASS } from "@/utils/mutations";
 import { GET_PREFERRED_USERS } from "@/utils/queries";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { TinderCard } from "@/components/discover/tinder-card";
-import { UserProfile } from "@/types";
-import { LIKE_USER, PASS_USER, UNDO_PASS } from "@/utils/mutations";
 
+import { Card } from "@/components/cards/card";
+import { LoadingSpinner } from "@/components/loader/loading-spinner";
+import { GradientButton } from "@/components/sliders/gradient-button";
+import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/cards/card";
-import { GradientButton } from "@/components/sliders/gradient-button";
-import { LoadingSpinner } from "@/components/loader/loading-spinner";
+import { handleSwipeHelper } from "@/utils/handleSwipe";
 import {
   AdjustmentsHorizontalIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { motion, AnimatePresence } from "framer-motion";
-import { handleSwipeHelper } from "@/utils/handleSwipe";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function DiscoverPage() {
   const user = useUser();

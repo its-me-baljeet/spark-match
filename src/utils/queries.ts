@@ -73,3 +73,16 @@ export const GET_USERS_WHO_LIKED_ME = gql`
     }
   }
 `;
+
+export const GET_MY_MATCHES = gql`
+  query GetMyMatches($clerkId: String!) {
+    getMyMatches(clerkId: $clerkId) {
+      id
+      name
+      age
+      photos
+      isOnline
+      lastActiveAt
+    }
+  }
+`;
