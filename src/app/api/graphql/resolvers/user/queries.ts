@@ -108,16 +108,6 @@ export async function getPreferredUsers(
     where.lastActiveAt = { gte: threshold };
   }
 
-  // 📍 Distance filter (simple bounding box approximation)
-  // if (distanceKm) {
-  //   const { lat, lng } = currentUser.location;
-  //   const degreeOffset = distanceKm / 111; // Rough 111 km per degree
-  //   where.location = {
-  //     lat: { gte: lat - degreeOffset, lte: lat + degreeOffset },
-  //     lng: { gte: lng - degreeOffset, lte: lng + degreeOffset },
-  //   };
-  // }
-
   let users = await ctx.db.user.findMany({
     take: limit,
     skip: cursor ? 1 : 0,

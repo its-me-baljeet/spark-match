@@ -1,10 +1,8 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { useState, useEffect } from "react";
-import gqlClient from "@/services/graphql";
-import { GET_CURRENT_USER } from "@/utils/queries";
-import Image from "next/image";
-import { UserProfile } from "@/types";
+import { Card, SectionHeader } from "@/components/cards/card";
+import ProfileEditForm from "@/components/dialogs/edit-profile-dialog";
+import { LoadingSpinner } from "@/components/loader/loading-spinner";
+import { GradientButton } from "@/components/sliders/gradient-button";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +10,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Pencil, MapPin, Heart, Calendar, Camera } from "lucide-react";
-import ProfileEditForm from "@/components/dialogs/edit-profile-dialog";
-import { Card, SectionHeader } from "@/components/cards/card";
-import { LoadingSpinner } from "@/components/loader/loading-spinner";
-import { GradientButton } from "@/components/sliders/gradient-button";
-import { Badge } from "@/components/badge/badge";
+import gqlClient from "@/services/graphql";
+import { UserProfile } from "@/types";
+import { GET_CURRENT_USER } from "@/utils/queries";
+import { useUser } from "@clerk/nextjs";
+import { Calendar, Camera, Heart, MapPin, Pencil } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -91,7 +90,8 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-gradient-to-br from-pink-50 via-red-50 to-orange-50 dark:from-background dark:via-card/30 dark:to-background py-8">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
         {/* Hero Section */}
-        <Card gradient className="overflow-hidden">
+        <Card gradient className="overflow-hidden relative">
+          {/* Photo Section */}
           {mainPhoto ? (
             <div className="relative h-60 md:h-[500px]">
               <Dialog>
@@ -104,11 +104,6 @@ export default function ProfilePage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-sm font-medium bg-black/20 px-4 py-2 rounded-full backdrop-blur-sm">
-                        View all photos
-                      </div>
-                    </div>
                   </div>
                 </DialogTrigger>
 
@@ -135,61 +130,51 @@ export default function ProfilePage() {
                   </div>
                 </DialogContent>
               </Dialog>
-
-              {/* Floating Edit Button */}
-              <div className="absolute top-6 right-6">
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <button className="bg-white/90 hover:bg-white text-gray-900 shadow-xl backdrop-blur-sm px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 hover:scale-105">
-                      <Pencil className="h-4 w-4" />
-                      Edit Profile
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="text-2xl font-bold">
-                        Edit Your Profile
-                      </DialogTitle>
-                    </DialogHeader>
-                    <ProfileEditForm
-                      profile={profile}
-                      onUpdate={handleProfileUpdate}
-                      onClose={() => setDialogOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              {/* Profile Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                <div className="space-y-3">
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <h1 className="text-4xl font-bold mb-2">
-                        {profile.name}, {age}
-                      </h1>
-                      <Badge variant="gradient" size="sm">
-                        {profile.gender.charAt(0) +
-                          profile.gender.slice(1).toLowerCase()}
-                      </Badge>
-                    </div>
-                  </div>
-                  {profile.bio && (
-                    <p className="text-white/90 text-lg leading-relaxed max-w-2xl">
-                      {profile.bio}
-                    </p>
-                  )}
-                </div>
-              </div>
             </div>
           ) : (
-            <div className="h-96 bg-gradient-to-br from-pink-100 to-orange-100 dark:from-pink-900/20 dark:to-orange-900/20 flex items-center justify-center">
+            <div className="h-60 md:h-[500px] bg-gradient-to-br from-pink-100 to-orange-100 dark:from-pink-900/20 dark:to-orange-900/20 flex items-center justify-center">
               <div className="text-center space-y-4">
                 <Camera className="h-16 w-16 text-muted-foreground mx-auto" />
-                <p className="text-muted-foreground">No photos uploaded</p>
+                <p className="text-muted-foreground">No photos uploaded yet</p>
               </div>
             </div>
           )}
+
+          {/* 🟢 Floating Edit Button → stays on top of everything */}
+          <div className="absolute top-6 right-6 z-20">
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <button className="bg-white/90 hover:bg-white text-gray-900 shadow-xl backdrop-blur-sm px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 hover:scale-105">
+                  <Pencil className="h-4 w-4" />
+                  Edit Profile
+                </button>
+              </DialogTrigger>
+
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold">
+                    Edit Your Profile
+                  </DialogTitle>
+                </DialogHeader>
+
+                <ProfileEditForm
+                  profile={profile}
+                  onUpdate={handleProfileUpdate}
+                  onClose={() => setDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* 🧑 Profile Info Overlay → Always Visible */}
+          <div className="absolute bottom-6 left-6 z-10 text-white">
+            <h1 className="text-4xl font-bold">
+              {profile.name}, {age}
+            </h1>
+            {profile.bio && (
+              <p className="text-white/80 text-lg max-w-xl">{profile.bio}</p>
+            )}
+          </div>
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

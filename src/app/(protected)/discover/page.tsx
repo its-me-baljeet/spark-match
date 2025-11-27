@@ -2,8 +2,7 @@
 
 import { TinderCard } from "@/components/discover/tinder-card";
 import gqlClient from "@/services/graphql";
-import { UserProfile } from "@/types";
-import { UNDO_PASS } from "@/utils/mutations";
+import { LastInteraction, UserProfile } from "@/types";
 import { GET_PREFERRED_USERS } from "@/utils/queries";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
@@ -28,8 +27,7 @@ export default function DiscoverPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
-  const [undoUser, setUndoUser] = useState<UserProfile | null>(null);
-  const [undoTimer, setUndoTimer] = useState<NodeJS.Timeout | null>(null);
+  const [lastInteraction, setLastInteraction] = useState<LastInteraction | null| undefined>(null);
 
   // Filters
   const [distanceKm, setDistanceKm] = useState(50);
@@ -92,14 +90,12 @@ export default function DiscoverPage() {
   ) => {
     if (!user.user) return;
 
-    await handleSwipeHelper({
+    const lastInteractionResp = await handleSwipeHelper({
       dir,
       swipedUser,
       currentUserId: user.user.id,
-      setUsers,
-      setUndoUser,
-      setUndoTimer,
     });
+    setLastInteraction(lastInteractionResp);
   };
 
   return (
@@ -197,6 +193,7 @@ export default function DiscoverPage() {
                   <TinderCard
                     user={u}
                     isTop={i === 0}
+                    onRewind={()=>{}}
                     onSwipe={(dir) => handleSwipe(dir, u)}
                     onOpen={() => console.log("Open profile")}
                     styleIndex={i}
@@ -206,27 +203,6 @@ export default function DiscoverPage() {
           </div>
         )}
       </div>
-      {undoUser && (
-        <div className="fixed bottom-20 flex items-center gap-3 bg-black/70 text-white px-4 py-2 rounded-full shadow-lg backdrop-blur-md animate-fade-in z-[999]">
-          <span>👎 Passed {undoUser.name}</span>
-          <button
-            onClick={async () => {
-              if (undoTimer) clearTimeout(undoTimer);
-
-              await gqlClient.request(UNDO_PASS, {
-                fromClerkId: user.user?.id,
-                toUserId: undoUser.id,
-              });
-
-              setUsers((prev) => [undoUser!, ...prev]); // Put back on top
-              setUndoUser(null);
-            }}
-            className="text-green-400 font-bold hover:text-green-300"
-          >
-            Undo
-          </button>
-        </div>
-      )}
     </main>
   );
 }

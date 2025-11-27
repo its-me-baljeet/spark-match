@@ -86,3 +86,8 @@ export interface PreferenceInput {
   distanceKm: number;
   gender?: "MALE" | "FEMALE" | "OTHER";
 }
+
+export interface LastInteraction {
+  type: string;
+  id: string;
+}

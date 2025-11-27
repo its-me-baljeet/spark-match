@@ -6,7 +6,7 @@ import { GraphQLContext } from "@/types/graphql";
 import db from "@/services/prisma"; // ✅ your Prisma client
 import { checkExistingUser, getCurrentUser, getMyMatches, getPreferredUsers, getUsersWhoLikedMe } from "./resolvers/user/queries";
 import { registerUser, updateUser } from "./resolvers/user/mutations";
-import { likeUser, passUser, undoPass } from "./resolvers/interaction";
+import { likeUser, passUser } from "./resolvers/interaction";
 
 const resolvers = {
   Query: {
@@ -21,7 +21,6 @@ const resolvers = {
     updateUser,
     likeUser,
     passUser,
-    undoPass,
   },
 };
 

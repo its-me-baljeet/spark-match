@@ -109,8 +109,7 @@ export const typeDefs = gql`
   type Mutation {
     registerUser(input: RegisterUserInput!): User!
     updateUser(input: UpdateUserInput!): User!
-    likeUser(fromClerkId: String!, toUserId: String!): Boolean!
-    passUser(fromClerkId: String!, toUserId: String!): Boolean!
-    undoPass(fromClerkId: String!, toUserId: String!): Boolean!
+    likeUser(fromClerkId: String!, toUserId: String!): id!
+    passUser(fromClerkId: String!, toUserId: String!): id!
   }
 `;

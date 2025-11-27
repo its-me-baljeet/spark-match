@@ -5,13 +5,14 @@ import React from "react";
 import { motion, PanInfo } from "framer-motion";
 import { UserProfile } from "@/types";
 import Image from "next/image";
-import { Heart, Send, X } from "lucide-react";
+import { Heart, RotateCcw, Send, X } from "lucide-react";
 
 export type OnSwipeDir = "left" | "right";
 
 interface TinderCardProps {
   user: UserProfile;
   isTop?: boolean;
+  onRewind: () => void;
   onSwipe: (dir: OnSwipeDir) => Promise<void> | void;
   onOpen: () => void;
   styleIndex?: number; // 0 = top, 1 = next, 2 = next
@@ -20,6 +21,7 @@ interface TinderCardProps {
 export const TinderCard: React.FC<TinderCardProps> = ({
   user,
   isTop = false,
+  onRewind,
   onSwipe,
   onOpen,
   styleIndex = 0,
@@ -114,6 +116,13 @@ export const TinderCard: React.FC<TinderCardProps> = ({
 
         <div className="flex items-center justify-center gap-6">
           {/* Pass Button */}
+          <button
+            onClick={() => onRewind()}
+            aria-label="Rewind"
+            className="flex items-center justify-center bg-white/10 border border-white/20 hover:bg-yellow-500/90 text-white rounded-full backdrop-blur-md transition-transform active:scale-90 w-12 h-12 sm:w-14 sm:h-14"
+          >
+            <RotateCcw />
+          </button>
           <button
             onClick={() => onSwipe("left")}
             aria-label="Pass"

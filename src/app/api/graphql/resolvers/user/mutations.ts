@@ -30,7 +30,7 @@ export async function registerUser(
   });
 
   if (existing) {
-    return formatUser(existing); // ✅ no repetition
+    return formatUser(existing);
   }
 
   const newUser = await ctx.db.user.create({

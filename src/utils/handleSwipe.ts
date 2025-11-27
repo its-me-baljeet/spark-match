@@ -6,38 +6,36 @@ interface HandleSwipeParams {
   dir: "left" | "right";
   swipedUser: UserProfile;
   currentUserId: string;
-  setUsers: React.Dispatch<React.SetStateAction<UserProfile[]>>;
-  setUndoUser?: (user: UserProfile | null) => void;
-  setUndoTimer?: (timer: NodeJS.Timeout | null) => void;
 }
 
 export const handleSwipeHelper = async ({
   dir,
   swipedUser,
   currentUserId,
-  setUsers,
-  setUndoUser,
-  setUndoTimer,
 }: HandleSwipeParams) => {
-  if (!currentUserId) return;
+  if (!currentUserId) return null
 
   if (dir === "right") {
-    await gqlClient.request(LIKE_USER, {
+    const likeId: {
+      likeUser: { id: string };
+    } = await gqlClient.request(LIKE_USER, {
       fromClerkId: currentUserId,
       toUserId: swipedUser.id,
     });
+    return {
+      type: "LIKE",
+      id: likeId.likeUser.id,
+    }
   } else if (dir === "left") {
-    await gqlClient.request(PASS_USER, {
+    const passId: {
+      passUser: { id: string };
+    } = await gqlClient.request(PASS_USER, {
       fromClerkId: currentUserId,
       toUserId: swipedUser.id,
     });
-
-    if (setUndoUser && setUndoTimer) {
-      setUndoUser(swipedUser);
-      const timer = setTimeout(() => setUndoUser(null), 5000);
-      setUndoTimer(timer);
+    return {
+      type: "PASS",
+      id: passId.passUser.id,
     }
   }
-
-  setUsers((prev) => prev.filter((u) => u.id !== swipedUser.id));
 };

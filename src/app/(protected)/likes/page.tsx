@@ -47,7 +47,6 @@ export default function LikesPage() {
       dir,
       swipedUser,
       currentUserId: user.id,
-      setUsers,
     });
   };
 
@@ -77,6 +76,7 @@ export default function LikesPage() {
                   style={{ zIndex: i + 1 }}
                 >
                   <TinderCard
+                    onRewind={() => {}}
                     user={u}
                     isTop={i === 0}
                     onSwipe={(dir) => handleSwipe(dir, u)}

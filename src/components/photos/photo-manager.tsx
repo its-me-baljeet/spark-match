@@ -1,11 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import Image from "next/image";
-import { X, ArrowUp, ArrowDown, Upload } from "lucide-react";
+import { X, Camera, Upload, ArrowUp, ArrowDown } from "lucide-react";
 
 interface PhotoManagerProps {
-  photos: string[]; // 🔹 string[] to match UserProfile
+  photos: string[];
   onChange: (photos: string[]) => void;
   maxPhotos?: number;
 }
@@ -13,6 +12,7 @@ interface PhotoManagerProps {
 interface PhotoItem {
   url: string;
   order: number;
+  isNew?: boolean;
 }
 
 export default function PhotoManager({
@@ -25,43 +25,46 @@ export default function PhotoManager({
   );
 
   const updatePhotos = (items: PhotoItem[]) => {
-    const sorted = items
-      .slice()
-      .sort((a, b) => a.order - b.order)
-      .map((item, index) => ({ ...item, order: index }));
-
-    setPhotoItems(sorted);
-    onChange(sorted.map((p) => p.url)); // 🔹 lift only URLs to parent
+    setPhotoItems(items);
+    const urls = items.sort((a, b) => a.order - b.order).map((item) => item.url);
+    onChange(urls);
   };
 
-  // 📍 Add photo using native file input + Cloudinary
-  const addPhoto = async (file: File) => {
-    if (!file || photoItems.length >= maxPhotos) return;
-
+  // 📌 Upload function using simple file input
+  const uploadToCloudinary = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "default");
+    formData.append("upload_preset", "default"); // your Cloudinary preset
 
-    const upload = await fetch(
+    const res = await fetch(
       `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      { method: "POST", body: formData }
-    ).then((res) => res.json());
-
-    updatePhotos([
-      ...photoItems,
       {
-        url: upload.secure_url,
-        order: photoItems.length,
-      },
-    ]);
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+    if (data.secure_url) {
+      addPhoto(data.secure_url);
+    }
   };
 
-  const removePhoto = (index: number) =>
-    updatePhotos(photoItems.filter((_, i) => i !== index));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    Array.from(e.target.files).forEach(uploadToCloudinary);
+  };
 
-  const movePhoto = (index: number, dir: "up" | "down") => {
+  const removePhoto = (index: number) => {
+    const newItems = photoItems.filter((_, i) => i !== index);
+    const reordered = newItems.map((item, i) => ({ ...item, order: i }));
+    updatePhotos(reordered);
+  };
+
+  const movePhoto = (index: number, direction: "up" | "down") => {
     const newItems = [...photoItems];
-    const targetIndex = dir === "up" ? index - 1 : index + 1;
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+
     if (targetIndex < 0 || targetIndex >= newItems.length) return;
 
     [newItems[index], newItems[targetIndex]] = [
@@ -71,76 +74,77 @@ export default function PhotoManager({
     updatePhotos(newItems);
   };
 
+  const addPhoto = (url: string) => {
+    if (photoItems.length >= maxPhotos) return;
+    const newItem: PhotoItem = { url, order: photoItems.length, isNew: true };
+    updatePhotos([...photoItems, newItem]);
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          {photoItems.length}/{maxPhotos} photos
-        </p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Photos</h3>
+          <p className="text-sm text-muted-foreground">
+            {photoItems.length}/{maxPhotos} photos • Drag to reorder
+          </p>
+        </div>
 
         {photoItems.length < maxPhotos && (
-          <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl">
+          <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-pink-500/25 transition-all duration-200 cursor-pointer">
             <Upload className="h-4 w-4" />
-            Add Photo
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) addPhoto(file);
-              }}
-            />
+            Add Photos
+            <input type="file" accept="image/*" multiple hidden onChange={handleFileChange} />
           </label>
         )}
       </div>
 
       {photoItems.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {photoItems.map((photo, index) => (
-            <div
-              key={photo.url + index}
-              className="relative aspect-square rounded-lg overflow-hidden group"
-            >
-              <Image
-                src={`${photo.url}?v=${Date.now()}`} // cache-bust to see updates
-                alt={`photo-${index}`}
-                fill
-                className="object-cover"
-                unoptimized
-              />
+            <div key={`${photo.url}-${index}`} className="relative aspect-square rounded-2xl overflow-hidden group bg-muted">
+              <Image src={photo.url} alt={`Photo ${index + 1}`} fill className="object-cover transition-transform duration-200" />
 
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                {index > 0 && (
-                  <button
-                    onClick={() => movePhoto(index, "up")}
-                    className="p-2 bg-white/20 rounded-full"
-                  >
-                    <ArrowUp className="h-4 w-4 text-white" />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="flex items-center gap-2">
+                  {index > 0 && (
+                    <button onClick={() => movePhoto(index, "up")} className="p-2 bg-white/20 hover:bg-white/30 rounded-full">
+                      <ArrowUp className="h-4 w-4 text-white" />
+                    </button>
+                  )}
+                  {index < photoItems.length - 1 && (
+                    <button onClick={() => movePhoto(index, "down")} className="p-2 bg-white/20 hover:bg-white/30 rounded-full">
+                      <ArrowDown className="h-4 w-4 text-white" />
+                    </button>
+                  )}
+                  <button onClick={() => removePhoto(index)} className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full">
+                    <X className="h-4 w-4 text-white" />
                   </button>
-                )}
-                {index < photoItems.length - 1 && (
-                  <button
-                    onClick={() => movePhoto(index, "down")}
-                    className="p-2 bg-white/20 rounded-full"
-                  >
-                    <ArrowDown className="h-4 w-4 text-white" />
-                  </button>
-                )}
-                <button
-                  onClick={() => removePhoto(index)}
-                  className="p-2 bg-red-500 rounded-full"
-                >
-                  <X className="h-4 w-4 text-white" />
-                </button>
+                </div>
               </div>
+
+              <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                {index + 1}
+              </div>
+              {photo.isNew && (
+                <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                  New
+                </div>
+              )}
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center">
-          No photos yet. Add your first!
-        </p>
+        <div className="border-2 border-dashed border-muted rounded-2xl p-12 text-center">
+          <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h4 className="text-lg font-semibold text-foreground mb-2">No Photos Yet</h4>
+          <p className="text-muted-foreground mb-6">Add some photos to make your profile stand out</p>
+          <label className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg cursor-pointer">
+            <Upload className="h-5 w-5" />
+            Upload Your First Photo
+            <input type="file" multiple hidden accept="image/*" onChange={handleFileChange} />
+          </label>
+        </div>
       )}
     </div>
   );
