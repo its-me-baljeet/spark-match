@@ -150,10 +150,14 @@ export async function getUsersWhoLikedMe(
   const currentUser = await ctx.db.user.findUnique({ where: { clerkId } });
   if (!currentUser) throw new Error("User not found");
 
-    await ctx.db.user.update({
+  await ctx.db.user.update({
     where: { clerkId },
     data: { lastActiveAt: new Date() },
   });
+
+  // 0️⃣ Get matches using existing resolver
+  const matches = await getMyMatches(_parent, { clerkId }, ctx);
+  const matchedUserIds = matches.map((u) => u.id);
 
   const users = await ctx.db.user.findMany({
     where: {
@@ -174,6 +178,9 @@ export async function getUsersWhoLikedMe(
 
       // 4️⃣ Ignore my own profile
       clerkId: { not: clerkId },
+
+      // 5️⃣ Exclude already matched users
+      id: { notIn: matchedUserIds },
     },
     include: { photos: true, preferences: true },
   });
@@ -224,23 +231,24 @@ export async function getMyMatches(
   return matchedUsers.map(formatUser);
 }
 
-export async function getUserById(_parent:unknown,
-  {userId}: {userId: string}
+export async function getUserById(
+  _parent: unknown,
+  { userId }: { userId: string }
 ) {
-  try{
+  try {
     const user = await db.user.findUnique({
       where: {
-        id: userId
+        id: userId,
       },
       include: {
         photos: true,
-        preferences: true
-      }
-    })
-    if(!user) throw new Error("User not found")
-    return formatUser(user)
-  }catch(error){
-    console.log(error)
-    return null
+        preferences: true,
+      },
+    });
+    if (!user) throw new Error("User not found");
+    return formatUser(user);
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 }

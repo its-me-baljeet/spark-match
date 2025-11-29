@@ -24,7 +24,7 @@ export default function EditProfileFab({
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} onc>
+    <Dialog open={open} onOpenChange={setOpen} >
       <DialogTrigger asChild>
         <button
           type="button"
