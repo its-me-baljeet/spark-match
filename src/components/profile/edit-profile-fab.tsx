@@ -7,10 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import ProfileEditForm from "@/components/dialogs/edit-profile-dialog";
 import { UserProfile } from "@/types";
 
-interface Props {
-  profile: UserProfile;
-  onProfileUpdate: (profile: UserProfile) => void;
-}
+
 
 export default function EditProfileFab({
   profile,

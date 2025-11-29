@@ -97,7 +97,7 @@ export default function ProfilePage() {
                   <div className="absolute -bottom-2 -right-2 z-20">
                     <EditProfileFab
                       profile={profile}
-                      onProfileUpdate={setProfile}
+                      onProfileUpdate={(p) => setProfile(p)}
                       className="h-10 w-10 shadow-lg"
                     />
                   </div>

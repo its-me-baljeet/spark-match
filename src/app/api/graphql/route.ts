@@ -1,8 +1,6 @@
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import { ApolloServer } from "@apollo/server";
-import { NextRequest } from "next/server";
 import { typeDefs } from "@/app/api/graphql/typedefs";
-import { GraphQLContext } from "@/types/graphql";
 import db from "@/services/prisma"; // ✅ your Prisma client
 import { checkExistingUser, getCurrentUser, getMyMatches, getPreferredUsers, getUserById, getUsersWhoLikedMe } from "./resolvers/user/queries";
 import { deleteMatch, registerUser, updateUser } from "./resolvers/user/mutations";
@@ -27,19 +25,22 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer<GraphQLContext>({
-  typeDefs,
-  resolvers,
+const server = new ApolloServer({
+    typeDefs,
+    resolvers,
 });
 
-const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(
-  server,
-  {
-    context: async (req) => ({
-      req,
-      db, // ✅ add Prisma to context
-    }),
-  }
-);
 
-export { handler as GET, handler as POST };
+
+const handler = startServerAndCreateNextHandler(server, {
+  context: async req => ({ req, db }),
+});
+
+
+export async function GET(request: Request) {
+  return handler(request);
+}
+
+export async function POST(request: Request) {
+  return handler(request);
+}

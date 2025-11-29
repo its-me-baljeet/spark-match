@@ -5,7 +5,7 @@ import React from "react";
 import { motion, PanInfo } from "framer-motion";
 import { LastInteraction, UserProfile } from "@/types";
 import Image from "next/image";
-import { Heart, RotateCcw, Send, X } from "lucide-react";
+import { Heart, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
 
 export type OnSwipeDir = "left" | "right";
