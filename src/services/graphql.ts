@@ -1,7 +1,8 @@
 import { GraphQLClient } from "graphql-request";
 
+const baseURL = process.env.NEXT_PUBLIC_HOST_NAME || "http://localhost:3000";
 
-const host = process.env.NEXT_PUBLIC_HOST_NAME || "http://localhost:3000/api/graphql";
-const gqlClient = new GraphQLClient(`${host}`);
+// Always append /api/graphql
+const gqlClient = new GraphQLClient(`${baseURL}/api/graphql`);
 
 export default gqlClient;
