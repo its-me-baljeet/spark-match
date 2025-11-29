@@ -13,29 +13,31 @@ export const handleSwipeHelper = async ({
   swipedUser,
   currentUserId,
 }: HandleSwipeParams) => {
-  if (!currentUserId) return null
+  if (!currentUserId) return null;
 
   if (dir === "right") {
-    const likeId: {
-      likeUser: { id: string };
+    const data: {
+      likeUser: string;
     } = await gqlClient.request(LIKE_USER, {
       fromClerkId: currentUserId,
       toUserId: swipedUser.id,
     });
     return {
       type: "LIKE",
-      id: likeId.likeUser.id,
-    }
+      id: data.likeUser,
+      user: swipedUser,
+    };
   } else if (dir === "left") {
-    const passId: {
-      passUser: { id: string };
+    const data: {
+      passUser: string;
     } = await gqlClient.request(PASS_USER, {
       fromClerkId: currentUserId,
       toUserId: swipedUser.id,
     });
     return {
       type: "PASS",
-      id: passId.passUser.id,
-    }
+      id: data.passUser,
+      user: swipedUser,
+    };
   }
 };

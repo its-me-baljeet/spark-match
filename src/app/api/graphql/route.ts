@@ -4,9 +4,9 @@ import { NextRequest } from "next/server";
 import { typeDefs } from "@/app/api/graphql/typedefs";
 import { GraphQLContext } from "@/types/graphql";
 import db from "@/services/prisma"; // ✅ your Prisma client
-import { checkExistingUser, getCurrentUser, getMyMatches, getPreferredUsers, getUsersWhoLikedMe } from "./resolvers/user/queries";
+import { checkExistingUser, getCurrentUser, getMyMatches, getPreferredUsers, getUserById, getUsersWhoLikedMe } from "./resolvers/user/queries";
 import { registerUser, updateUser } from "./resolvers/user/mutations";
-import { likeUser, passUser } from "./resolvers/interaction";
+import { likeUser, passUser, rewindUser } from "./resolvers/interaction";
 
 const resolvers = {
   Query: {
@@ -15,12 +15,14 @@ const resolvers = {
     getPreferredUsers,
     getUsersWhoLikedMe,
     getMyMatches,
+    getUserById,
   },
   Mutation: {
     registerUser,
     updateUser,
     likeUser,
     passUser,
+    rewindUser
   },
 };
 

@@ -50,7 +50,7 @@ export default function MatchesPage() {
           {matches.map((match) => (
             <Link
               key={match.id}
-              href={`/chat/${match.id}`}
+              href={`/profile/${match.id}`}
               className="flex items-center gap-4 p-3 rounded-lg shadow bg-card hover:bg-card/90 transition"
             >
               {/* Image Container (No overflow hidden here) */}

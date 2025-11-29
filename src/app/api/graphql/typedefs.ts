@@ -44,6 +44,11 @@ export const typeDefs = gql`
     lng: Float!
   }
 
+  input LastInteraction {
+    type: String!
+    id: ID!
+  }
+
   input UserPhotoInput {
     url: String!
     publicId: String!
@@ -95,6 +100,7 @@ export const typeDefs = gql`
   type Query {
     checkExistingUser(clerkId: String!): Boolean!
     getCurrentUser(clerkId: String!): User
+    getUserById(userId: String!): User
     getPreferredUsers(
       clerkId: String!
       limit: Int
@@ -109,7 +115,8 @@ export const typeDefs = gql`
   type Mutation {
     registerUser(input: RegisterUserInput!): User!
     updateUser(input: UpdateUserInput!): User!
-    likeUser(fromClerkId: String!, toUserId: String!): id!
-    passUser(fromClerkId: String!, toUserId: String!): id!
+    likeUser(fromClerkId: String!, toUserId: String!): ID!
+    passUser(fromClerkId: String!, toUserId: String!): ID!
+    rewindUser(lastInteraction: LastInteraction!): Boolean!
   }
 `;

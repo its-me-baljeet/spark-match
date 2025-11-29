@@ -68,8 +68,8 @@ export const PASS_USER = gql`
   }
 `;
 
-export const UNDO_PASS = gql`
-  mutation UndoPass($fromClerkId: String!, $toUserId: String!) {
-    undoPass(fromClerkId: $fromClerkId, toUserId: $toUserId)
+export const REWIND_USER = gql`
+  mutation RewindUser($lastInteraction: LastInteraction!) {
+    rewindUser(lastInteraction: $lastInteraction)
   }
 `;

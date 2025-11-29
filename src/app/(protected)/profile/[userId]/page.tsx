@@ -1,9 +1,9 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import gqlClient from "@/services/graphql";
-import { GET_CURRENT_USER } from "@/utils/queries";
+import { GET_USER_BY_ID } from "@/utils/queries";
 import { UserProfile } from "@/types";
 
 import { LoadingSpinner } from "@/components/loader/loading-spinner";
@@ -13,21 +13,23 @@ import { GradientButton } from "@/components/sliders/gradient-button";
 import ProfileAvatarPanel from "@/components/profile/profile-avatar-panel";
 import ProfileDetailsPanel from "@/components/profile/profile-details-panel";
 
-export default function ProfilePage() {
-  const { user } = useUser();
+export default function UserProfilePage() {
+  const params = useParams();
+  const userId = params?.userId as string;
+  
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!userId) return;
     const fetchProfile = async () => {
       try {
         setLoading(true);
         const data = await gqlClient.request<{
-          getCurrentUser: UserProfile | null;
-        }>(GET_CURRENT_USER, { clerkId: user.id });
-        setProfile(data.getCurrentUser);
+          getUserById: UserProfile | null;
+        }>(GET_USER_BY_ID, { userId });
+        setProfile(data.getUserById);
       } catch {
         setError("Failed to fetch profile");
       } finally {
@@ -35,7 +37,7 @@ export default function ProfilePage() {
       }
     };
     fetchProfile();
-  }, [user?.id]);
+  }, [userId]);
 
   if (loading) {
     return (
@@ -62,19 +64,19 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="p-8 text-center">
-          <p className="text-muted-foreground text-lg">Profile not found.</p>
+          <p className="text-muted-foreground text-lg">User not found.</p>
         </Card>
       </div>
     );
   }
 
   return (
-    <main className="h-[calc(100vh-56px)] bg-gradient-to-br from-background via-background to-primary/5 px-3 sm:px-4 lg:px-6 py-4 flex items-center justify-center">
+    <main className="min-h-[calc(100vh-56px)] bg-gradient-to-br from-background via-background to-primary/5 px-3 sm:px-4 lg:px-6 py-4 flex items-center justify-center">
       <div
         className="
           w-full
           max-w-[95vw]
-          min-h-[88vh]
+          min-h-[85vh]
           max-h-[92vh]
           flex flex-col lg:flex-row gap-6 lg:gap-10
           bg-card/80 backdrop-blur-xl
@@ -85,17 +87,17 @@ export default function ProfilePage() {
           p-8 sm:p-10 lg:p-12
           transition-all duration-500
           hover:shadow-[0_15px_50px_rgba(0,0,0,0.2)]
-          dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.2)]
+          dark:hover:shadow-[0_15px_50px_rgba(255,255,255,0.08),0_0_80px_rgba(var(--primary-rgb),0.2)]
           overflow-hidden
         "
       >
-        {/* Left Panel - Avatar, Stats, and Metadata */}
-        <div className="flex-shrink-0 w-full lg:w-1/3 max-w-sm mx-auto lg:mx-0 flex flex-col justify-center">
-          <ProfileAvatarPanel profile={profile} onProfileUpdate={setProfile} />
+        {/* Left Panel - Avatar, Stats (Hidden), and Metadata */}
+        <div className="flex-shrink-0 w-full lg:w-1/3 max-w-sm mx-auto lg:mx-0 flex flex-col justify-center overflow-y-auto scrollbar-thin">
+          <ProfileAvatarPanel profile={profile} readonly={true} />
         </div>
 
         {/* Right Panel - Details (Header, Photos, Preferences) */}
-        <div className="flex-grow min-w-0 flex flex-col justify-center">
+        <div className="flex-grow min-w-0 flex flex-col justify-center overflow-y-auto scrollbar-thin">
           <ProfileDetailsPanel profile={profile} />
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { GraphQLContext } from "@/lib/graphql/context";
 import db from "@/services/prisma";
+import { LastInteraction } from "@/types";
 
 export async function likeUser(
   _parent: unknown,
@@ -86,10 +87,27 @@ export async function passUser(
 
 export async function rewindUser (
   _parent: unknown,
-  { clerkId }: { clerkId: string },
+   {lastInteraction} : { lastInteraction: LastInteraction},
 ){
-  const user = await db.user.findUnique({
-    where: { clerkId },
-  });
-  if (!user) throw new Error("User not found");
+  console.log("Rewinding interaction:", lastInteraction);
+  try{
+    if(lastInteraction.type==="LIKE"){
+      await db.like.deleteMany({
+        where:{
+          id:lastInteraction.id
+        }
+      });
+    }
+    else if(lastInteraction.type==="PASS"){
+      await db.pass.deleteMany({
+        where:{
+          id:lastInteraction.id
+        }
+      });
+    }
+    return true;
+  } catch (error) {
+    console.error("Error in rewindUser:", error);
+    return false;
+  }
 }

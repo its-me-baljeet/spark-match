@@ -1,6 +1,7 @@
 import { GraphQLContext } from "@/lib/graphql/context";
 import { formatUser } from "@/utils/format-user";
 import { Prisma } from "../../../../../../generated/prisma";
+import db from "@/services/prisma";
 
 export async function checkExistingUser(
   _parent: unknown,
@@ -221,4 +222,25 @@ export async function getMyMatches(
     .filter((u): u is NonNullable<typeof u> => !!u); // type-safe filter
 
   return matchedUsers.map(formatUser);
+}
+
+export async function getUserById(_parent:unknown,
+  {userId}: {userId: string}
+) {
+  try{
+    const user = await db.user.findUnique({
+      where: {
+        id: userId
+      },
+      include: {
+        photos: true,
+        preferences: true
+      }
+    })
+    if(!user) throw new Error("User not found")
+    return formatUser(user)
+  }catch(error){
+    console.log(error)
+    return null
+  }
 }

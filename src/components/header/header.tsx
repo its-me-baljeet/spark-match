@@ -8,6 +8,7 @@ import {
 import { ModeToggle } from "../buttons/mode-toggle-btn";
 import { HeaderDropdown } from "./dropdown";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Header() {
   return (
@@ -18,6 +19,13 @@ export default function Header() {
           href={"/"}
           className="text-xl sm:text-2xl font-bold text-rose-500 tracking-tight"
         >
+          <Image
+            src={"/tinder_logo.png"}
+            alt="Logo"
+            width={30}
+            height={30}
+            className="inline-block mr-2 mb-1"
+          />
           MatchSpark
         </Link>
       </div>

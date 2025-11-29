@@ -35,6 +35,33 @@ export const GET_CURRENT_USER = gql`
   }
 `;
 
+export const GET_USER_BY_ID = gql`
+  query GetUserById($userId: String!) {
+    getUserById(userId: $userId) {
+      id
+      clerkId
+      name
+      age
+      bio
+      gender
+      birthday
+      photos
+      preferences {
+        minAge
+        maxAge
+        distanceKm
+        gender
+      }
+      location {
+        lat
+        lng
+      }
+      isOnline
+      createdAt
+    }
+  }
+`;
+
 export const GET_PREFERRED_USERS = gql`
   query Query(
     $clerkId: String!
