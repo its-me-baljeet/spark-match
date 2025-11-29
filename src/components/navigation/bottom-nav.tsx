@@ -39,7 +39,7 @@ export function BottomNav() {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-t border-border sm:hidden pb-safe">
       <nav className="flex justify-around items-center h-16 px-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (

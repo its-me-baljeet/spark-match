@@ -18,7 +18,6 @@ export default function LikesPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Fetch users who liked me
   useEffect(() => {
     if (!user) return;
 
@@ -40,9 +39,13 @@ export default function LikesPage() {
     fetchLikes();
   }, [user]);
 
-  // ❤️ Swipe handling (like/pass)
   const handleSwipe = async (dir: "left" | "right", swipedUser: UserProfile) => {
     if (!user) return;
+    
+    // Remove the user from state immediately for instant UI update
+    setUsers((prev) => prev.filter((u) => u.id !== swipedUser.id));
+    
+    // Then perform the actual like/pass action
     await handleSwipeHelper({
       dir,
       swipedUser,
@@ -51,7 +54,7 @@ export default function LikesPage() {
   };
 
   return (
-    <main className="flex justify-center items-center h-[calc(100vh-64px)] px-4">
+    <main className="flex justify-center items-center h-[calc(100vh-125px)] px-4">
       {loading ? (
         <LoadingSpinner size="lg" />
       ) : users.length === 0 ? (
@@ -82,6 +85,7 @@ export default function LikesPage() {
                     onSwipe={(dir) => handleSwipe(dir, u)}
                     onOpen={() => console.log("Open profile of:", u.name)}
                     styleIndex={i}
+                    lastInteraction={null}
                   />
                 </motion.div>
               ))}

@@ -73,3 +73,9 @@ export const REWIND_USER = gql`
     rewindUser(lastInteraction: $lastInteraction)
   }
 `;
+
+export const DELETE_MATCH = gql`
+  mutation DeleteMatch($userId: String!) {
+    deleteMatch(userId: $userId)
+  }
+`;

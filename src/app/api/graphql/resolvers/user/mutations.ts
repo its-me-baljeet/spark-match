@@ -115,3 +115,52 @@ export async function updateUser(
 
   return formatUser(updatedUser);
 }
+
+export async function deleteMatch(
+  _parent: unknown,
+  { userId }: { userId: string },
+  ctx: GraphQLContext
+) {
+  try {
+    const matchParticipant = await ctx.db.matchParticipant.findFirst({
+      where: { userId },
+    });
+  
+    if (!matchParticipant) throw new Error("Match not found");
+  
+    // Get all participants in this match
+    const allParticipants = await ctx.db.matchParticipant.findMany({
+      where: { matchId: matchParticipant.matchId },
+    });
+    
+    // Extract user IDs
+    const userIds = allParticipants.map(p => p.userId);
+    
+    // Delete mutual likes between these users to prevent auto-matching again
+    if (userIds.length === 2) {
+      await ctx.db.like.deleteMany({
+        where: {
+          OR: [
+            { fromUserId: userIds[0], toUserId: userIds[1] },
+            { fromUserId: userIds[1], toUserId: userIds[0] },
+          ],
+        },
+      });
+    }
+    
+    // Delete all participants first to avoid relation constraint violation
+    await ctx.db.matchParticipant.deleteMany({
+      where: { matchId: matchParticipant.matchId },
+    });
+    
+    // Then delete the match
+    await ctx.db.match.delete({
+      where: { id: matchParticipant.matchId },
+    });
+  
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}

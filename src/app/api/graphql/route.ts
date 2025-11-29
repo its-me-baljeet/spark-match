@@ -5,7 +5,7 @@ import { typeDefs } from "@/app/api/graphql/typedefs";
 import { GraphQLContext } from "@/types/graphql";
 import db from "@/services/prisma"; // ✅ your Prisma client
 import { checkExistingUser, getCurrentUser, getMyMatches, getPreferredUsers, getUserById, getUsersWhoLikedMe } from "./resolvers/user/queries";
-import { registerUser, updateUser } from "./resolvers/user/mutations";
+import { deleteMatch, registerUser, updateUser } from "./resolvers/user/mutations";
 import { likeUser, passUser, rewindUser } from "./resolvers/interaction";
 
 const resolvers = {
@@ -22,7 +22,8 @@ const resolvers = {
     updateUser,
     likeUser,
     passUser,
-    rewindUser
+    rewindUser,
+    deleteMatch,
   },
 };
 

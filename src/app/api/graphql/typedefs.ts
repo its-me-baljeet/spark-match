@@ -118,5 +118,6 @@ export const typeDefs = gql`
     likeUser(fromClerkId: String!, toUserId: String!): ID!
     passUser(fromClerkId: String!, toUserId: String!): ID!
     rewindUser(lastInteraction: LastInteraction!): Boolean!
+    deleteMatch(userId: String!): Boolean!
   }
 `;

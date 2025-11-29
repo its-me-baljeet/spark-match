@@ -1,3 +1,4 @@
+'use client';
 import {
   SignedIn,
   SignedOut,
@@ -5,14 +6,17 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
-import { ModeToggle } from "../buttons/mode-toggle-btn";
-import Link from "next/link";
 import Image from "next/image";
-import { Sparkles } from "lucide-react";
+import Link from "next/link";
+import {
+  usePathname,
+} from "next/navigation";
+import { ModeToggle } from "../buttons/mode-toggle-btn";
 
 export default function Header() {
+  const pathname = usePathname();
   return (
-    <header className="sticky top-0 left-0 right-0 h-16 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-background/80 backdrop-blur-xl z-50 transition-all duration-300">
+    <header className="sticky top-0 left-0 right-0 h-15 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-background/80 backdrop-blur-xl z-50 transition-all duration-300">
       {/* Brand */}
       <div className="flex items-center gap-2">
         <Link
@@ -34,21 +38,30 @@ export default function Header() {
       </div>
 
       {/* Desktop Navigation */}
+      <div className="flex items-center gap-8">
+
       <nav className="hidden md:flex items-center gap-8">
         {[
           { href: "/discover", label: "Discover" },
           { href: "/matches", label: "Matches" },
           { href: "/likes", label: "Likes" },
           { href: "/profile", label: "Profile" },
-        ].map((link) => (
-          <Link
+        ].map((link) => {
+          const isActive = pathname.startsWith(link.href);
+          return (
+            <Link
             key={link.href}
-            href={link.href}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200 hover:scale-105"
-          >
-            {link.label}
-          </Link>
-        ))}
+              href={link.href}
+              className={`text-sm font-medium transition-colors duration-200 hover:scale-105 ${
+                isActive
+                ? "text-primary font-bold"
+                : "text-muted-foreground hover:text-primary"
+              }`}
+              >
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Right Section */}
@@ -76,10 +89,11 @@ export default function Header() {
                   avatarBox: "w-9 h-9 border-2 border-primary/20 hover:border-primary/50 transition-colors"
                 }
               }}
-            />
+              />
           </SignedIn>
         </div>
       </div>
+              </div>
     </header>
   );
 }

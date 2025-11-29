@@ -6,6 +6,7 @@ import { motion, PanInfo } from "framer-motion";
 import { LastInteraction, UserProfile } from "@/types";
 import Image from "next/image";
 import { Heart, RotateCcw, Send, X } from "lucide-react";
+import Link from "next/link";
 
 export type OnSwipeDir = "left" | "right";
 
@@ -111,20 +112,33 @@ export const TinderCard: React.FC<TinderCardProps> = ({
               {user.age}
             </span>
           </div>
-          
+
           {user.bio && (
             <p className="text-white/90 text-base leading-relaxed line-clamp-2 drop-shadow-sm max-w-[90%]">
               {user.bio}
             </p>
           )}
-          
+
           {/* View Profile Hint */}
-          <div className="mt-4 flex items-center gap-2 text-white/60 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <Link
+            href={`/profile/${user.id}`}
+            className="mt-4 flex items-center gap-2 text-white/60 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0"
+          >
             <span>View Profile</span>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
             </svg>
-          </div>
+          </Link>
         </div>
       </button>
 
@@ -195,14 +209,18 @@ export const TinderCard: React.FC<TinderCardProps> = ({
         className="absolute top-8 right-8 pointer-events-none z-30 border-4 border-rose-500 rounded-lg px-4 py-1"
         style={{ opacity: 0, rotate: 12 }}
       >
-        <span className="text-4xl font-black text-rose-500 tracking-widest uppercase">NOPE</span>
+        <span className="text-4xl font-black text-rose-500 tracking-widest uppercase">
+          NOPE
+        </span>
       </motion.div>
 
       <motion.div
         className="absolute top-8 left-8 pointer-events-none z-30 border-4 border-emerald-500 rounded-lg px-4 py-1"
         style={{ opacity: 0, rotate: -12 }}
       >
-        <span className="text-4xl font-black text-emerald-500 tracking-widest uppercase">LIKE</span>
+        <span className="text-4xl font-black text-emerald-500 tracking-widest uppercase">
+          LIKE
+        </span>
       </motion.div>
     </motion.div>
   );
