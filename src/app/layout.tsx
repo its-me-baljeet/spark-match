@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
+import { BottomNav } from "@/components/navigation/bottom-nav";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const poppins = Poppins({
@@ -24,7 +25,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={` ${inter.variable} ${poppins.variable} antialiased`}>
+        <body className={` ${inter.variable} ${poppins.variable} antialiased pb-16 sm:pb-0`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -32,6 +33,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <BottomNav />
           </ThemeProvider>
         </body>
       </html>

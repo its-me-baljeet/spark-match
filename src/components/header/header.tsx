@@ -6,61 +6,79 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { ModeToggle } from "../buttons/mode-toggle-btn";
-import { HeaderDropdown } from "./dropdown";
 import Link from "next/link";
 import Image from "next/image";
+import { Sparkles } from "lucide-react";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 left-0 h-14 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border bg-background z-50">
+    <header className="sticky top-0 left-0 right-0 h-16 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-background/80 backdrop-blur-xl z-50 transition-all duration-300">
       {/* Brand */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <Link
           href={"/"}
-          className="text-xl sm:text-2xl font-bold text-rose-500 tracking-tight"
+          className="flex items-center gap-2 group"
         >
-          <Image
-            src={"/tinder_logo.png"}
-            alt="Logo"
-            width={30}
-            height={30}
-            className="inline-block mr-2 mb-1"
-          />
-          MatchSpark
+          <div className="relative w-8 h-8 transition-transform duration-300 group-hover:scale-110">
+            <Image
+              src={"/tinder_logo.png"}
+              alt="Logo"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-transparent tracking-tight">
+            MatchSpark
+          </span>
         </Link>
       </div>
+
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex items-center gap-8">
+        {[
+          { href: "/discover", label: "Discover" },
+          { href: "/matches", label: "Matches" },
+          { href: "/likes", label: "Likes" },
+          { href: "/profile", label: "Profile" },
+        ].map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200 hover:scale-105"
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
 
       {/* Right Section */}
       <div className="flex items-center gap-3 sm:gap-4">
         <ModeToggle />
-        <Link href={"/profile"}>Profile</Link>
-        <Link href={"/discover"}>Discover</Link>
-        <Link href={"/likes"}>Likes</Link>
-        <Link href="/matches" className="hover:text-pink-500">
-          Matches
-        </Link>
 
-        {/* Desktop Auth Buttons */}
-        <div className="hidden sm:flex items-center gap-3 sm:gap-4">
+        {/* Auth Buttons */}
+        <div className="flex items-center gap-3">
           <SignedOut>
             <SignInButton>
-              <button className="px-4 sm:px-5 h-9 sm:h-10 rounded-full border border-border text-sm sm:text-base font-medium hover:bg-muted transition">
+              <button className="px-4 py-2 rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors">
                 Sign In
               </button>
             </SignInButton>
             <SignUpButton>
-              <button className="px-4 sm:px-5 h-9 sm:h-10 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm sm:text-base font-medium hover:opacity-90 transition">
+              <button className="px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-medium hover:opacity-90 transition-opacity shadow-md hover:shadow-lg">
                 Sign Up
               </button>
             </SignUpButton>
           </SignedOut>
           <SignedIn>
-            <UserButton />
+            <UserButton 
+              appearance={{
+                elements: {
+                  avatarBox: "w-9 h-9 border-2 border-primary/20 hover:border-primary/50 transition-colors"
+                }
+              }}
+            />
           </SignedIn>
         </div>
-
-        {/* Mobile Dropdown */}
-        <HeaderDropdown />
       </div>
     </header>
   );
