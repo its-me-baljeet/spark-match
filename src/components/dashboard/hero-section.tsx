@@ -36,7 +36,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <main className="relative flex flex-col items-center justify-center min-h-[calc(100vh-56px)] px-6 text-center text-foreground overflow-hidden py-5">
+    <main className="relative flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-6 text-center text-foreground overflow-hidden py-5">
       <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-foreground">
         MatchSpark
       </h1>
