@@ -25,6 +25,7 @@ export const typeDefs = gql`
     birthday: String!
     photos: [String!]!
     preferences: UserPreference
+    city: String
     isOnline: Boolean!
     lastActiveAt: String!
     location: Location!
@@ -36,7 +37,7 @@ export const typeDefs = gql`
     minAge: Int!
     maxAge: Int!
     distanceKm: Int!
-    gender: Gender
+    gender: Gender!
   }
 
   type Location {

@@ -3,27 +3,23 @@ export async function getCityFromCoords(
   lng: number
 ): Promise<string> {
   try {
+    const API_KEY = process.env.OPENWEATHER_API_KEY;
+
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10&addressdetails=1`,
-      { headers: { "User-Agent": "TinderCloneApp/1.0" } } // Required by API
+      `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lng}&limit=1&appid=${API_KEY}`
     );
 
-    if (!response.ok) throw new Error("Failed to fetch location");
+    if (!response.ok) throw new Error("Failed to fetch city");
 
     const data = await response.json();
 
-    // Extract city-like data
-    const city =
-      data.address.city ||
-      data.address.town ||
-      data.address.village ||
-      data.address.suburb ||
-      data.address.state ||
-      "Unknown location";
+    // Extract city name safely
+    const city = data?.[0]?.name ?? "Unknown";
+    console.log("Reverse geocode data:", data);
 
     return city;
-  } catch (error) {
-    console.error("Error fetching city:", error);
-    return "Location unavailable";
+  } catch (err) {
+    console.error("Reverse geocode failed:", err);
+    return "Unknown";
   }
 }

@@ -28,6 +28,7 @@ export const GET_CURRENT_USER = gql`
         lat
         lng
       }
+      city
       isOnline
       createdAt
       updatedAt
@@ -86,7 +87,6 @@ export const GET_PREFERRED_USERS = gql`
     }
   }
 `;
-
 
 export const GET_USERS_WHO_LIKED_ME = gql`
   query GetUsersWhoLikedMe($clerkId: String!) {

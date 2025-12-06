@@ -187,7 +187,7 @@ export default function OnboardingPage() {
     minAge: 18,
     maxAge: 50,
     distanceKm: 50,
-    gender: undefined,
+    gender: "FEMALE",
   });
   const [images, setImages] = useState<UserPhotoInput[]>([]);
 
@@ -682,7 +682,6 @@ export default function OnboardingPage() {
                     </label>
                     <div className="grid grid-cols-4 gap-2">
                       {[
-                        { value: "", label: "Any" },
                         { value: "MALE", label: "Male" },
                         { value: "FEMALE", label: "Female" },
                         { value: "OTHER", label: "Other" },
@@ -693,9 +692,7 @@ export default function OnboardingPage() {
                           onClick={() =>
                             setPreferences((prev) => ({
                               ...prev,
-                              gender: option.value
-                                ? (option.value as "MALE" | "FEMALE" | "OTHER")
-                                : undefined,
+                              gender: option.value as "MALE" | "FEMALE" | "OTHER",
                             }))
                           }
                           className={`py-3 px-3 rounded-xl font-medium transition-all duration-200 text-sm ${

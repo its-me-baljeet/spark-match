@@ -29,14 +29,6 @@ export function formatUser(
   const isOnline =
     isValidTimestamp && nowUTC - lastActiveUTC <= ONLINE_THRESHOLD_MS;
 
-  // console.log({
-  //   lastActiveAt: user.lastActiveAt,
-  //   lastActiveUTC,
-  //   nowUTC,
-  //   onlineThreshold: ONLINE_THRESHOLD_MS,
-  //   isValidTimestamp,
-  //   isOnline,
-  // });
   return {
     id: user.id,
     clerkId: user.clerkId,
@@ -52,10 +44,16 @@ export function formatUser(
           minAge: user.preferences.minAge,
           maxAge: user.preferences.maxAge,
           distanceKm: user.preferences.distanceKm,
-          gender: user.preferences.gender ?? undefined,
+          gender: user.preferences.gender ?? "FEMALE",
         }
-      : undefined,
+      : {
+          minAge: 18,
+          maxAge: 99,
+          distanceKm: 50,
+          gender: "FEMALE",
+        },
     location: user.location ?? { lat: 0, lng: 0 },
+    city: user.city,
     lastActiveAt: user.lastActiveAt.toISOString(),
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),

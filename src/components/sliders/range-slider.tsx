@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface RangeSliderProps {
   min: number;
   max: number;
@@ -7,7 +9,16 @@ interface RangeSliderProps {
   step?: number;
 }
 
-export function RangeSlider({ min, max, values, onChange, label, step = 1 }: RangeSliderProps) {
+export function RangeSlider({
+  min,
+  max,
+  values,
+  onChange,
+  label,
+  step = 1,
+}: RangeSliderProps) {
+  const [dragging, setDragging] = useState<"min" | "max" | null>(null);
+
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMin = parseInt(e.target.value);
     if (newMin <= values[1]) {
@@ -27,35 +38,47 @@ export function RangeSlider({ min, max, values, onChange, label, step = 1 }: Ran
 
   return (
     <div className="space-y-3">
-      <label className="text-sm font-semibold text-foreground">{label}: {values[0]} - {values[1]} years</label>
+      <label className="text-sm font-semibold text-foreground">
+        {label}: {values[0]} - {values[1]} years
+      </label>
       <div className="relative px-3">
         <div className="relative h-2 bg-muted rounded-full">
-          <div 
+          <div
             className="absolute h-2 bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 rounded-full"
             style={{
               left: `${minPercent}%`,
-              width: `${maxPercent - minPercent}%`
+              width: `${maxPercent - minPercent}%`,
             }}
           />
         </div>
         <input
-          type="range"
-          min={min}
-          max={max}
-          value={values[0]}
-          step={step}
-          onChange={handleMinChange}
-          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb top-0"
-        />
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={values[1]}
-          step={step}
-          onChange={handleMaxChange}
-          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb top-0"
-        />
+  type="range"
+  min={min}
+  max={max}
+  value={values[0]}
+  step={step}
+  onChange={handleMinChange}
+  onMouseDown={() => setDragging("min")}
+  onMouseUp={() => setDragging(null)}
+  className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-0 pointer-events-none ${
+    dragging === "min" ? "z-30" : "z-20"
+  }`}
+/>
+
+<input
+  type="range"
+  min={min}
+  max={max}
+  value={values[1]}
+  step={step}
+  onChange={handleMaxChange}
+  onMouseDown={() => setDragging("max")}
+  onMouseUp={() => setDragging(null)}
+  className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-0 pointer-events-none ${
+    dragging === "max" ? "z-30" : "z-20"
+  }`}
+/>
+
       </div>
       <style jsx>{`
         .slider-thumb::-webkit-slider-thumb {

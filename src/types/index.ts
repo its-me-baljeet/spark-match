@@ -24,7 +24,7 @@ export interface UserPreferences {
   minAge: number;
   maxAge: number;
   distanceKm: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  gender: "MALE" | "FEMALE" | "OTHER";
 }
 
 export interface UpdateUserInput {
@@ -48,7 +48,8 @@ export interface UserProfile {
   bio?: string;
   gender: "MALE" | "FEMALE" | "OTHER";
   photos: string[];
-  preferences?: UserPreferences;
+  preferences: UserPreferences;
+  city?: string | null;
   lastActiveAt: string;
   location: { lat: number; lng: number };
   isOnline: boolean;
@@ -84,10 +85,41 @@ export interface PreferenceInput {
   minAge: number;
   maxAge: number;
   distanceKm: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  gender: "MALE" | "FEMALE" | "OTHER";
 }
-
 export interface LastInteraction {
   type: string;
   id: string;
+  user: UserProfile;
+}
+
+
+export interface cityData {
+  city?: string | null;
+  town?: string | null;
+  village?: string | null;
+  suburb?: string | null;
+  state?: string | null;
+}
+
+export interface PreferencesForm {
+  minAge: number;
+  maxAge: number;
+  distanceKm: number;
+  gender: "MALE" | "FEMALE" | "OTHER";
+}
+
+export interface ProfileEditFormState {
+  name: string;
+  bio: string;
+  birthday: string; // UI stores YYYY-MM-DD
+  gender: "MALE" | "FEMALE" | "OTHER";
+  photos: string[]; // UI stores photo URLs
+  location: Location;
+  preferences: PreferencesForm;
+}
+
+export interface UserPreferencesMeta {
+  distanceKm?: number;
+  onlyOnline?: boolean;
 }

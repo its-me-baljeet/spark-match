@@ -25,6 +25,7 @@ model User {
   location    Location
   photos      Photo[]
   preferences Preference?
+  city String?
 
   // relations
   likesSent         Like[]            @relation("LikesSent")

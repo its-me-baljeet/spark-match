@@ -68,7 +68,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
       onDragEnd={isTop ? handleDragEnd : undefined}
       dragElastic={0.18}
       whileTap={{ cursor: "grabbing" }}
-      className="relative w-[90vw] max-w-[400px] h-[70vh] sm:h-[75vh] md:h-[80vh] rounded-3xl bg-card shadow-2xl overflow-hidden touch-pan-y select-none"
+      className="relative w-[90vw] max-w-[400px] h-[70vh] sm:h-[75vh] md:h-[75vh] rounded-3xl bg-card shadow-2xl overflow-hidden touch-pan-y select-none"
       style={{
         boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
         cursor: isTop ? "grab" : "default",
