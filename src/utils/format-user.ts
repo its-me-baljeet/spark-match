@@ -28,15 +28,7 @@ export function formatUser(
   const isValidTimestamp = lastActiveUTC <= nowUTC;
   const isOnline =
     isValidTimestamp && nowUTC - lastActiveUTC <= ONLINE_THRESHOLD_MS;
-
-  // console.log({
-  //   lastActiveAt: user.lastActiveAt,
-  //   lastActiveUTC,
-  //   nowUTC,
-  //   onlineThreshold: ONLINE_THRESHOLD_MS,
-  //   isValidTimestamp,
-  //   isOnline,
-  // });
+    
   return {
     id: user.id,
     clerkId: user.clerkId,
@@ -56,6 +48,7 @@ export function formatUser(
         }
       : undefined,
     location: user.location ?? { lat: 0, lng: 0 },
+    city: user.city,
     lastActiveAt: user.lastActiveAt.toISOString(),
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),

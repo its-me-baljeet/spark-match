@@ -82,6 +82,11 @@ export async function getPreferredUsers(
     id: { notIn: [...likedUserIds, ...passedUserIds] },
     clerkId: { not: clerkId },
   };
+  // 🔥 Online filter
+  if (onlyOnline) {
+    const threshold = new Date(Date.now() - 5 * 60 * 1000);
+    where.lastActiveAt = { gte: threshold };
+  }
 
   if (currentUser.preferences) {
     const { minAge, maxAge, gender } = currentUser.preferences;
@@ -103,11 +108,6 @@ export async function getPreferredUsers(
     if (gender) where.gender = gender;
   }
 
-  // 🔥 Online filter
-  if (onlyOnline) {
-    const threshold = new Date(Date.now() - 5 * 60 * 1000);
-    where.lastActiveAt = { gte: threshold };
-  }
 
   let users = await ctx.db.user.findMany({
     take: limit,

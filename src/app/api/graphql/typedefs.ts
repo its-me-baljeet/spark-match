@@ -25,6 +25,7 @@ export const typeDefs = gql`
     birthday: String!
     photos: [String!]!
     preferences: UserPreference
+    city: String
     isOnline: Boolean!
     lastActiveAt: String!
     location: Location!

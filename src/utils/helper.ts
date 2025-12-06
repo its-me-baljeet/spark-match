@@ -1,3 +1,4 @@
+
 export const getLastSeenText = (lastActiveAt: string) => {
   const lastActive = new Date(lastActiveAt);
   const diffMs = Date.now() - lastActive.getTime();
@@ -14,3 +15,8 @@ export const getLastSeenText = (lastActiveAt: string) => {
   const diffDays = Math.floor(diffHours / 24);
   return `Active ${diffDays}d ago`;
 };
+
+export function extractCity(address: string): string {
+  if (!address) return "Unknown";
+  return address.split(",")[0]?.trim() ?? "Unknown";
+}

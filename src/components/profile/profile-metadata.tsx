@@ -1,35 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Calendar, MapPin } from "lucide-react";
 import type { UserProfile } from "@/types";
-import { getCityFromCoords } from "@/utils/get-city-from-coords";
+import { Calendar, MapPin } from "lucide-react";
 
 interface ProfileMetadataProps {
   profile: UserProfile;
 }
 
 export default function ProfileMetadata({ profile }: ProfileMetadataProps) {
-  const [cityName, setCityName] = useState<string>("Loading...");
+
+  console.log("Profile Metadata City:", profile.city);
 
   const joined = new Date(profile.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
 
-  useEffect(() => {
-    if (profile.location?.lat) {
-      getCityFromCoords(profile.location.lat, profile.location.lng).then(setCityName);
-    } else {
-      setCityName("Location not set");
-    }
-  }, [profile.location]);
-
   return (
     <div className="space-y-3 animate-fade-in">
       <MetadataItem
         icon={<MapPin className="h-5 w-5" />}
-        label={cityName}
+        label={profile.city || "Unknown Location"}
         gradient="from-blue-500 to-cyan-500"
       />
       <MetadataItem

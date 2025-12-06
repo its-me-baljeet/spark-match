@@ -26,7 +26,9 @@ export default function PhotoManager({
 
   const updatePhotos = (items: PhotoItem[]) => {
     setPhotoItems(items);
-    const urls = items.sort((a, b) => a.order - b.order).map((item) => item.url);
+    const urls = items
+      .sort((a, b) => a.order - b.order)
+      .map((item) => item.url);
     onChange(urls);
   };
 
@@ -94,7 +96,13 @@ export default function PhotoManager({
           <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-pink-500/25 transition-all duration-200 cursor-pointer">
             <Upload className="h-4 w-4" />
             Add Photos
-            <input type="file" accept="image/*" multiple hidden onChange={handleFileChange} />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={handleFileChange}
+            />
           </label>
         )}
       </div>
@@ -102,22 +110,23 @@ export default function PhotoManager({
       {photoItems.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {photoItems.map((photo, index) => (
-            <div key={`${photo.url}-${index}`} className="relative aspect-square rounded-2xl overflow-hidden group bg-muted">
-              <Image src={photo.url} alt={`Photo ${index + 1}`} fill className="object-cover transition-transform duration-200" />
+            <div
+              key={`${photo.url}-${index}`}
+              className="relative aspect-square rounded-2xl overflow-hidden group bg-muted"
+            >
+              <Image
+                src={photo.url}
+                alt={`Photo ${index + 1}`}
+                fill
+                className="object-cover transition-transform duration-200"
+              />
 
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                 <div className="flex items-center gap-2">
-                  {index > 0 && (
-                    <button onClick={() => movePhoto(index, "up")} className="p-2 bg-white/20 hover:bg-white/30 rounded-full">
-                      <ArrowUp className="h-4 w-4 text-white" />
-                    </button>
-                  )}
-                  {index < photoItems.length - 1 && (
-                    <button onClick={() => movePhoto(index, "down")} className="p-2 bg-white/20 hover:bg-white/30 rounded-full">
-                      <ArrowDown className="h-4 w-4 text-white" />
-                    </button>
-                  )}
-                  <button onClick={() => removePhoto(index)} className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full">
+                  <button
+                    onClick={() => removePhoto(index)}
+                    className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full"
+                  >
                     <X className="h-4 w-4 text-white" />
                   </button>
                 </div>
@@ -137,12 +146,22 @@ export default function PhotoManager({
       ) : (
         <div className="border-2 border-dashed border-muted rounded-2xl p-12 text-center">
           <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h4 className="text-lg font-semibold text-foreground mb-2">No Photos Yet</h4>
-          <p className="text-muted-foreground mb-6">Add some photos to make your profile stand out</p>
+          <h4 className="text-lg font-semibold text-foreground mb-2">
+            No Photos Yet
+          </h4>
+          <p className="text-muted-foreground mb-6">
+            Add some photos to make your profile stand out
+          </p>
           <label className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg cursor-pointer">
             <Upload className="h-5 w-5" />
             Upload Your First Photo
-            <input type="file" multiple hidden accept="image/*" onChange={handleFileChange} />
+            <input
+              type="file"
+              multiple
+              hidden
+              accept="image/*"
+              onChange={handleFileChange}
+            />
           </label>
         </div>
       )}

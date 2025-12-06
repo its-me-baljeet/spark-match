@@ -1,6 +1,8 @@
 import { GraphQLContext } from "@/lib/graphql/context";
 import { RegisterUserArgs, UpdateUserInput } from "@/types";
 import { formatUser } from "@/utils/format-user";
+import { getCityFromCoords } from "@/utils/get-city-from-coords";
+import { extractCity } from "@/utils/helper";
 import { syncPhotos } from "@/utils/photo-service";
 import { syncPreferences } from "@/utils/preference-service";
 
@@ -33,6 +35,11 @@ export async function registerUser(
     return formatUser(existing);
   }
 
+const locationData = await getCityFromCoords(location.lat, location.lng);
+
+const city = extractCity(locationData);
+
+
   const newUser = await ctx.db.user.create({
     data: {
       clerkId,
@@ -61,6 +68,7 @@ export async function registerUser(
             },
           }
         : undefined,
+      city: city
     },
     include: { photos: true, preferences: true },
   });
@@ -100,6 +108,10 @@ export async function updateUser(
   // ⚙️ Handle preferences
   await syncPreferences(user.id, input.preferences);
 
+const locationData = await getCityFromCoords(input.location.lat, input.location.lng);
+
+const city = extractCity(locationData);
+
   // 🧑 Update user profile
   const updatedUser = await ctx.db.user.update({
     where: { id: user.id },
@@ -109,6 +121,7 @@ export async function updateUser(
       gender: input.gender,
       birthday: new Date(input.birthday),
       location: input.location,
+      city: city
     },
     include: { photos: true, preferences: true },
   });
@@ -125,17 +138,17 @@ export async function deleteMatch(
     const matchParticipant = await ctx.db.matchParticipant.findFirst({
       where: { userId },
     });
-  
+
     if (!matchParticipant) throw new Error("Match not found");
-  
+
     // Get all participants in this match
     const allParticipants = await ctx.db.matchParticipant.findMany({
       where: { matchId: matchParticipant.matchId },
     });
-    
+
     // Extract user IDs
-    const userIds = allParticipants.map(p => p.userId);
-    
+    const userIds = allParticipants.map((p) => p.userId);
+
     // Delete mutual likes between these users to prevent auto-matching again
     if (userIds.length === 2) {
       await ctx.db.like.deleteMany({
@@ -147,17 +160,17 @@ export async function deleteMatch(
         },
       });
     }
-    
+
     // Delete all participants first to avoid relation constraint violation
     await ctx.db.matchParticipant.deleteMany({
       where: { matchId: matchParticipant.matchId },
     });
-    
+
     // Then delete the match
     await ctx.db.match.delete({
       where: { id: matchParticipant.matchId },
     });
-  
+
     return true;
   } catch (error) {
     console.log(error);

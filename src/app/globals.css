@@ -113,7 +113,6 @@
   --sidebar-ring: oklch(0.645 0.246 16.439);
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -123,10 +122,15 @@
   }
 }
 
-
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -135,8 +139,14 @@
 
 /* Smooth slide-in from left */
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .animate-slide-in-left {
@@ -145,8 +155,14 @@
 
 /* Smooth slide-in from right */
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .animate-slide-in-right {
@@ -155,8 +171,14 @@
 
 /* Scale-in animation */
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .animate-scale-in {
@@ -211,3 +233,14 @@
   background-color: hsl(var(--primary) / 0.5);
 }
 
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  pointer-events: auto; /* 💥 The magic fix */
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #ef4444, #f97316);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
