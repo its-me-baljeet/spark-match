@@ -10,7 +10,7 @@ export async function searchCity(query: string): Promise<CitySuggestion[]> {
   if (!query || query.length < 2) return [];
 
   try {
-    const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_KEY; // keep client-safe
+    const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
 
     const response = await fetch(
       `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(

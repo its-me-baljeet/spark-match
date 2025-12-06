@@ -9,8 +9,6 @@ interface ProfileMetadataProps {
 
 export default function ProfileMetadata({ profile }: ProfileMetadataProps) {
 
-  console.log("Profile Metadata City:", profile.city);
-
   const joined = new Date(profile.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
