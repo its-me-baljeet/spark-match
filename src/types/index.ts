@@ -85,7 +85,7 @@ export interface PreferenceInput {
   minAge: number;
   maxAge: number;
   distanceKm: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  gender: "MALE" | "FEMALE" | "OTHER";
 }
 export interface LastInteraction {
   type: string;
@@ -106,7 +106,7 @@ export interface PreferencesForm {
   minAge: number;
   maxAge: number;
   distanceKm: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  gender: "MALE" | "FEMALE" | "OTHER";
 }
 
 export interface ProfileEditFormState {
