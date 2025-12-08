@@ -6,28 +6,44 @@ interface ProfileHeaderProps {
   profile: UserProfile;
 }
 
+import { User } from "lucide-react";
+
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const age = Math.floor(
-    (Date.now() - new Date(profile.birthday).getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+    (Date.now() - new Date(profile.birthday).getTime()) /
+      (1000 * 60 * 60 * 24 * 365.25)
   );
 
   return (
-    <div className="space-y-3 animate-fade-in">
-      {/* Name and Age */}
-      <h1 className="text-3xl sm:text-4xl font-bold leading-tight tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent break-words">
-        {profile.name}
-        <span className="text-2xl sm:text-3xl text-muted-foreground font-normal ml-2">
-          {age}
-        </span>
-      </h1>
+    <div className="space-y-8 animate-fade-in">
+      {/* Name and Age Header */}
+      <div className="space-y-2">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground flex items-center gap-3">
+          {profile.name}
+          <span className="text-3xl sm:text-4xl text-muted-foreground font-normal">
+            {age}
+          </span>
+        </h1>
+      </div>
 
-      {/* Bio - Scrollable if too long */}
+      {/* About Me Section */}
       {profile.bio && (
-        <div className="max-h-32 overflow-y-auto scrollbar-thin pr-2">
-          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-prose transition-colors hover:text-foreground/80 break-words">
-            {profile.bio}
-          </p>
-        </div>
+        <section className="space-y-4">
+          {/* <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-blue-500 ring-1 ring-blue-500/30">
+              <User className="h-5 w-5" />
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight">
+              About Me
+            </h2>
+          </div> */}
+
+          <div className="relative pl-4 border-l-2 border-border/50">
+            <p className="text-lg text-muted-foreground leading-relaxed whitespace-pre-line break-words">
+              {profile.bio}
+            </p>
+          </div>
+        </section>
       )}
     </div>
   );

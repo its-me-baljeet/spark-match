@@ -52,9 +52,9 @@ export default function MatchesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-64px)] flex justify-center items-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="h-[calc(100vh-150px)] md:h-[calc(100vh-100px)] flex justify-center items-center">
+        <div className="flex flex-col justify-center items-center gap-4">
+          <div className="h-8 w-8 md:w-16 md:h-16 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-lg font-medium text-muted-foreground">
             Loading your matches...
           </p>
@@ -65,7 +65,7 @@ export default function MatchesPage() {
 
   if (matches.length === 0) {
     return (
-      <main className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center p-6">
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="text-8xl mb-6">💞</div>
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
@@ -75,11 +75,11 @@ export default function MatchesPage() {
             Keep swiping to find your perfect match! ⚡
           </p>
         </div>
-      </main>
+      </div>
     );
   }
   return (
-    <main className="min-h-[calc(100vh-125px)] p-4 sm:p-6 bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="flex-1 p-4 sm:p-6 bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-[1600px] mx-auto flex flex-col  lg:flex-row gap-0 lg:gap-6">
         <div className="w-full lg:w-[40%] xl:w-[35%] ">
           <div className="max-w-2xl mx-auto">
@@ -170,6 +170,6 @@ export default function MatchesPage() {
           <ChatPlaceholder />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

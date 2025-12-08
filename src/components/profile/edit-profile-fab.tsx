@@ -3,11 +3,15 @@
 
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import ProfileEditForm from "@/components/dialogs/edit-profile-dialog";
 import { UserProfile } from "@/types";
-
-
 
 export default function EditProfileFab({
   profile,
@@ -21,20 +25,27 @@ export default function EditProfileFab({
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button
           type="button"
           className={`
-            rounded-full bg-white dark:bg-neutral-800
-            shadow-[0_6px_16px_rgba(0,0,0,0.25)]
-            hover:scale-110 active:scale-95 transition-transform
-            flex items-center justify-center
-            ${className}
-          `}
-          aria-label="Edit profile"
+    h-12 w-12 sm:h-14 sm:w-14
+    rounded-full
+    bg-white dark:bg-neutral-900
+    flex items-center justify-center
+    shadow-[0_4px_20px_rgba(0,0,0,0.25)]
+    dark:shadow-[0_4px_20px_rgba(255,255,255,0.1)]
+    border border-black/5 dark:border-white/10
+    hover:shadow-[0_6px_28px_rgba(0,0,0,0.35)]
+    dark:hover:shadow-[0_6px_28px_rgba(255,255,255,0.2)]
+    hover:scale-110 active:scale-95
+    transition-all duration-300
+    backdrop-blur-md
+    ${className}
+  `}
         >
-          <Pencil className="h-4 w-4 md:h-5 md:w-5 text-gray-900 dark:text-gray-100" />
+          <Pencil className="h-5 w-5 text-black dark:text-white" />
         </button>
       </DialogTrigger>
 

@@ -54,24 +54,26 @@ export default function LikesPage() {
   };
 
   return (
-    <main className="px-4 py-6 min-h-[calc(100vh-120px)]">
+    <div className="flex-1 px-4 py-6 flex flex-col justify-center">
       {loading ? (
-        <div className="flex justify-center mt-20">
+        <div className="flex-1 flex min-h-[calc(100vh-200px)] justify-center items-center h-full">
           <LoadingSpinner size="lg" />
         </div>
       ) : users.length === 0 ? (
-        <div className="text-center max-w-md min-h-[80vh] md:min-h-[calc(100vh-120px)] flex flex-col items-center mx-auto justify-center">
+        <div className="flex flex-col justify-center items-center flex-1 text-center min-h-[calc(100vh-200px)]">
           <div className="text-8xl mb-6">💞</div>
+
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
             No Likes Yet
           </h2>
-          <p className="text-muted-foreground text-lg">
+
+          <p className="text-muted-foreground text-lg max-w-sm">
             Keep swiping to find your perfect match! ⚡
           </p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-6">
-          <h1 className="text-xl md:text-2xl md: font-bold bg-gradient-to-r from-rose-500 via-rose-500 to-red-500 bg-clip-text text-transparent">
+          <h1 className="text-xl text-left pl-5 md:pl-0 w-[350px] md:text-2xl font-bold bg-gradient-to-r from-rose-500 via-rose-500 to-red-500 bg-clip-text text-transparent">
             Likes You
           </h1>
           {users.map((u) => (
@@ -85,6 +87,6 @@ export default function LikesPage() {
           ))}
         </div>
       )}
-    </main>
+    </div>
   );
 }

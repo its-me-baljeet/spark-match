@@ -6,29 +6,30 @@ import gqlClient from "@/services/graphql";
 import { GET_USER_BY_ID } from "@/utils/queries";
 import { UserProfile } from "@/types";
 
-import { LoadingSpinner } from "@/components/loader/loading-spinner";
 import { Card } from "@/components/cards/card";
-import { GradientButton } from "@/components/sliders/gradient-button";
-
-import ProfileAvatarPanel from "@/components/profile/profile-avatar-panel";
-import ProfileDetailsPanel from "@/components/profile/profile-details-panel";
+import { LoadingSpinner } from "@/components/loader/loading-spinner";
+import ProfileAvatar from "@/components/profile/profile-avatar";
+import ProfileHeader from "@/components/profile/profile-header";
+import ProfilePreferences from "@/components/profile/profile-preferences";
 
 export default function UserProfilePage() {
   const params = useParams();
   const userId = params?.userId as string;
-  
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId) return;
+
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const data = await gqlClient.request<{
-          getUserById: UserProfile | null;
-        }>(GET_USER_BY_ID, { userId });
+        const data = await gqlClient.request<{ getUserById: UserProfile | null }>(
+          GET_USER_BY_ID,
+          { userId }
+        );
         setProfile(data.getUserById);
       } catch {
         setError("Failed to fetch profile");
@@ -36,30 +37,31 @@ export default function UserProfilePage() {
         setLoading(false);
       }
     };
+
     fetchProfile();
   }, [userId]);
 
+  // Loading UI
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-[calc(100vh-150px)] md:h-[calc(100vh-100px)] flex items-center justify-center bg-background">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
+  // Error UI
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="p-8 text-center space-y-4">
           <p className="text-destructive text-lg">{error}</p>
-          <GradientButton onClick={() => window.location.reload()}>
-            Try Again
-          </GradientButton>
         </Card>
       </div>
     );
   }
 
+  // No profile found
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -71,34 +73,44 @@ export default function UserProfilePage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-56px)] bg-gradient-to-br from-background via-background to-primary/5 px-3 sm:px-4 lg:px-6 py-4 flex items-center justify-center">
-      <div
-        className="
-          w-full
-          max-w-[95vw]
-          min-h-[85vh]
-          max-h-[92vh]
-          flex flex-col lg:flex-row gap-6 lg:gap-10
-          bg-card/80 backdrop-blur-xl
-          rounded-3xl 
-          shadow-[0_10px_40px_rgba(0,0,0,0.15)]
-          dark:shadow-[0_10px_40px_rgba(255,255,255,0.05),0_0_60px_rgba(var(--primary-rgb),0.15)]
-          border border-border/50
-          p-8 sm:p-10 lg:p-12
-          transition-all duration-500
-          hover:shadow-[0_15px_50px_rgba(0,0,0,0.2)]
-          dark:hover:shadow-[0_15px_50px_rgba(255,255,255,0.08),0_0_80px_rgba(var(--primary-rgb),0.2)]
-          overflow-hidden
-        "
-      >
-        {/* Left Panel - Avatar, Stats (Hidden), and Metadata */}
-        <div className="flex-shrink-0 w-full lg:w-1/3 max-w-sm mx-auto lg:mx-0 flex flex-col justify-center overflow-y-auto scrollbar-thin">
-          <ProfileAvatarPanel profile={profile} readonly={true} />
-        </div>
+    <main className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8 overflow-y-auto">
+      <div className="max-w-6xl mx-auto md:pt-8">
 
-        {/* Right Panel - Details (Header, Photos, Preferences) */}
-        <div className="flex-grow min-w-0 flex flex-col justify-center overflow-y-auto scrollbar-thin">
-          <ProfileDetailsPanel profile={profile} />
+        {/* Main Card */}
+        <div className="
+          bg-card/80 backdrop-blur-xl rounded-3xl 
+          border border-border/50 shadow-lg overflow-hidden
+        ">
+          
+          <div className="p-6 sm:p-10">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+
+              {/* Avatar Section */}
+              <div className="flex-shrink-0 mx-auto md:mx-0">
+                <ProfileAvatar profile={profile} readonly />
+              </div>
+
+              {/* Main Details */}
+              <div className="flex-grow space-y-8 w-full">
+
+                {/* Header (Name, Age, Bio) */}
+                <ProfileHeader profile={profile} />
+
+                {/* Divider */}
+                <div className="h-px bg-border/50 w-full" />
+
+                {/* Preferences Section */}
+                <ProfilePreferences preferences={profile.preferences} />
+
+                {/* Member Since */}
+                <div className="pt-4 text-xs text-muted-foreground text-center md:text-left">
+                  Member since {new Date(profile.createdAt).toLocaleDateString()}
+                </div>
+
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </main>

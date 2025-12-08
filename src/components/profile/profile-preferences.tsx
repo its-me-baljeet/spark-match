@@ -15,69 +15,49 @@ export default function ProfilePreferences({ preferences }: ProfilePreferencesPr
     : "Anyone";
 
   return (
-    <section className="pt-6 border-t border-border/50 animate-fade-in">
-      {/* Section Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 text-white">
-          <Heart className="h-4 w-4" />
-        </div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Preferences
-        </h2>
+    <section className="space-y-4 animate-fade-in">
+      <div className="flex items-center gap-2">
+         <div className="h-6 w-1 rounded-full bg-primary" />
+         <h2 className="text-lg font-semibold tracking-tight">Preferences</h2>
       </div>
 
-      {/* Preference Chips */}
-      <div className="flex flex-wrap gap-3">
-        <PreferenceChip
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <PreferenceItem
           icon={<Users className="h-4 w-4" />}
-          label={`Age ${preferences.minAge}–${preferences.maxAge}`}
-          gradient="from-blue-500 to-cyan-500"
+          label="Age Range"
+          value={`${preferences.minAge} – ${preferences.maxAge}`}
         />
-        <PreferenceChip
+        <PreferenceItem
           icon={<MapPin className="h-4 w-4" />}
-          label={`Within ${preferences.distanceKm} km`}
-          gradient="from-green-500 to-emerald-500"
+          label="Distance"
+          value={`Up to ${preferences.distanceKm} km`}
         />
-        <PreferenceChip
+        <PreferenceItem
           icon={<Heart className="h-4 w-4" />}
-          label={`Looking for ${genderLabel}`}
-          gradient="from-pink-500 to-rose-500"
+          label="Interested In"
+          value={genderLabel}
         />
       </div>
     </section>
   );
 }
 
-/* Preference Chip Component */
-interface PreferenceChipProps {
+interface PreferenceItemProps {
   icon: React.ReactNode;
   label: string;
-  gradient: string;
+  value: string;
 }
 
-function PreferenceChip({ icon, label, gradient }: PreferenceChipProps) {
+function PreferenceItem({ icon, label, value }: PreferenceItemProps) {
   return (
-    <div
-      className={`
-        group
-        relative
-        inline-flex items-center gap-2
-        px-4 py-2.5
-        rounded-full
-        bg-gradient-to-br ${gradient}
-        text-white
-        text-sm font-medium
-        shadow-md
-        transition-all duration-300
-        hover:shadow-xl
-        hover:scale-105
-        cursor-default
-      `}
-    >
-      <span className="transition-transform duration-300 group-hover:rotate-12">
+    <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/50 transition-colors hover:bg-secondary/50">
+      <div className="p-2 rounded-lg bg-background shadow-sm text-primary">
         {icon}
-      </span>
-      <span>{label}</span>
+      </div>
+      <div>
+        <p className="text-xs text-muted-foreground font-medium">{label}</p>
+        <p className="text-sm font-semibold text-foreground">{value}</p>
+      </div>
     </div>
   );
 }

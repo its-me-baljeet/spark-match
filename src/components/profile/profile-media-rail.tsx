@@ -1,38 +1,28 @@
-// components/profile/ProfileMediaRail.tsx
 "use client";
 
 import Image from "next/image";
 
 interface Props {
   photos: string[];
+  openAtIndex: (index: number) => void;
 }
 
-export default function ProfileMediaRail({ photos }: Props) {
+export default function ProfileMediaRail({ photos, openAtIndex }: Props) {
   if (photos.length <= 1) return null;
 
   const rest = photos.slice(1);
 
   return (
-    <section className="pt-2">
-      <div className="px-5 flex justify-between items-center mb-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Photos
-        </h2>
-      </div>
-
-      <div className="-mx-5 px-5 pb-3 flex gap-3 overflow-x-auto scrollbar-hide">
+    <section className="pt-2 w-full">
+      <div className="-mx-5 px-5 flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
         {rest.map((photo, idx) => (
-          <div
+          <button
             key={idx}
-            className="relative h-24 w-20 rounded-2xl overflow-hidden flex-shrink-0 bg-muted"
+            onClick={() => openAtIndex(idx + 1)}
+            className="relative h-24 w-20 rounded-2xl overflow-hidden bg-muted"
           >
-            <Image
-              src={photo}
-              alt={`Photo ${idx + 2}`}
-              fill
-              className="object-cover"
-            />
-          </div>
+            <Image src={photo} alt="" fill className="object-cover" />
+          </button>
         ))}
       </div>
     </section>

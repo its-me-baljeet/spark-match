@@ -1,21 +1,18 @@
 "use client";
 
+import gqlClient from "@/services/graphql";
+import { UserProfile } from "@/types";
+import { GET_CURRENT_USER } from "@/utils/queries";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import gqlClient from "@/services/graphql";
-import { GET_CURRENT_USER } from "@/utils/queries";
-import { UserProfile } from "@/types";
-import Image from "next/image";
 
-import { LoadingSpinner } from "@/components/loader/loading-spinner";
 import { Card } from "@/components/cards/card";
+import { LoadingSpinner } from "@/components/loader/loading-spinner";
 import { GradientButton } from "@/components/sliders/gradient-button";
 
-import ProfileAvatarPanel from "@/components/profile/profile-avatar-panel";
-import ProfileDetailsPanel from "@/components/profile/profile-details-panel";
-import ProfileStats from "@/components/profile/profile-stats";
-import ProfileMetadata from "@/components/profile/profile-metadata";
-import EditProfileFab from "@/components/profile/edit-profile-fab";
+import ProfileAvatar from "@/components/profile/profile-avatar";
+import ProfileHeader from "@/components/profile/profile-header";
+import ProfilePreferences from "@/components/profile/profile-preferences";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -43,7 +40,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-[calc(100vh-150px)] md:h-[calc(100vh-100px)] flex items-center justify-center bg-background">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -73,80 +70,44 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-background via-background to-primary/5 overflow-auto">
-      <div className="lg:hidden min-h-[calc(100vh-64px)] p-4">
-        <div className="w-full max-w-2xl mx-auto bg-card/80 backdrop-blur-xl rounded-2xl shadow-lg border border-border/50 p-5 space-y-5">
-          <div className="flex gap-4 items-start">
-            <div className="flex-shrink-0">
-              <div className="relative">
-                <div className="relative aspect-square w-28 sm:w-32 rounded-2xl overflow-hidden ring-2 ring-primary/20 shadow-lg">
-                  <Image
-                    src={profile.photos?.[0] ?? "/placeholder.png"}
-                    alt="Profile"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-                {setProfile && (
-                  <div className="absolute -bottom-2 -right-2 z-20">
-                    <EditProfileFab
-                      profile={profile}
-                      onProfileUpdate={(p) => setProfile(p)}
-                      className="h-10 w-10 shadow-lg"
-                    />
-                  </div>
-                )}
+    <main className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8 overflow-y-auto">
+      <div className="max-w-6xl mx-auto md:pt-8">
+        <div className="bg-card/80 backdrop-blur-xl rounded-3xl border border-border/50 shadow-lg overflow-hidden">
+          
+          <div className="p-6 sm:p-10">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              {/* Avatar Section - Fixed Width on Desktop, Centered on Mobile */}
+              <div className="flex-shrink-0 mx-auto md:mx-0">
+                <ProfileAvatar
+                  profile={profile}
+                  onProfileUpdate={setProfile}
+                />
               </div>
-            </div>
 
-            <div className="flex-1 min-w-0 space-y-2">
-              <div className="flex items-baseline gap-2 flex-wrap">
-                <h1 className="text-2xl font-bold truncate">
-                  {profile.name.split(" ")[0]}
-                </h1>
-                <span className="text-xl text-muted-foreground">
-                  {Math.floor(
-                    (Date.now() - new Date(profile.birthday).getTime()) /
-                      (1000 * 60 * 60 * 24 * 365.25)
-                  )}
-                </span>
+              {/* Main Content Area */}
+              <div className="flex-grow space-y-8 w-full">
+                {/* Header & Stats */}
+                <div>
+                   <ProfileHeader profile={profile} />
+                   <div className="mt-6 flex flex-wrap gap-4">
+                      {/* <ProfileStats profile={profile} /> */}
+                   </div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-border/50 w-full" />
+
+                {/* Details & Preferences */}
+                <div className="space-y-8">
+                   <ProfilePreferences preferences={profile.preferences} />
+                   <div className="pt-4 text-xs text-muted-foreground text-center md:text-left">
+                      Member since {new Date(profile.createdAt).toLocaleDateString()}
+                   </div>
+                </div>
               </div>
-              <ProfileStats profile={profile} readonly={false} />
             </div>
           </div>
-          <div className="border-t border-border/50"></div>
-          <div className="border-t border-border/50"></div>
-          <ProfileMetadata profile={profile} />
-          <ProfileDetailsPanel profile={profile} />
-        </div>
-      </div>
-      <div className="hidden lg:flex items-center justify-center px-6 py-6 min-h-[calc(100vh-64px)]">
-        <div
-          className="
-            w-full
-            max-w-7xl
-            flex flex-row gap-10
-            bg-card/80 backdrop-blur-xl
-            rounded-3xl 
-            shadow-[0_10px_40px_rgba(0,0,0,0.15)]
-            dark:shadow-[0_10px_40px_rgba(255,255,255,0.05),0_0_60px_rgba(var(--primary-rgb),0.15)]
-            border border-border/50
-            p-12
-            transition-all duration-500
-            hover:shadow-[0_15px_50px_rgba(0,0,0,0.2)]
-            dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.2)]
-          "
-        >
-          <div className="flex-shrink-0 w-1/3 max-w-sm flex flex-col justify-center">
-            <ProfileAvatarPanel
-              profile={profile}
-              onProfileUpdate={setProfile}
-            />
-          </div>
-          <div className="flex-grow min-w-0 flex flex-col justify-center">
-            <ProfileDetailsPanel profile={profile} />
-          </div>
+          
         </div>
       </div>
     </main>

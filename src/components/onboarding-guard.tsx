@@ -36,7 +36,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
           CHECK_USER,
           { clerkId: user.id } // Changed from email to clerkId
         );
-        
+
         if (!data?.checkExistingUser) {
           // Store the path they were trying to access
           sessionStorage.setItem("redirectAfterOnboarding", pathname);
@@ -56,7 +56,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
 
   if (checking) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[calc(100vh-100px)] md:h-screen">
         <LoadingSpinner />
       </div>
     );

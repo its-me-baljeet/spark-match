@@ -34,7 +34,7 @@ export default function FiltersPanel({
   fetchUsers,
 }: FiltersPanelProps) {
   return (
-    <div className="w-full max-w-[420px] pt-4 z-50 relative">
+    <div className="w-full max-w-[420px] pt-3 z-50 relative">
       <div className="flex gap-3 items-center px-2 border-b border-border pb-3">
         <button
           onClick={() => setShowFilters(!showFilters)}
