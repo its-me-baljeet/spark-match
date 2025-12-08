@@ -2,23 +2,24 @@
 
 import FiltersPanel from "@/components/discover/filters";
 import { TinderCard } from "@/components/discover/tinder-card";
-import { LoadingSpinner } from "@/components/loader/loading-spinner";
+import { TinderSearchLoader } from "@/components/loader/tinder-search-loader";
 import gqlClient from "@/services/graphql";
 import {
+  LastInteraction,
+  LiveLocation,
   UserPreferencesMeta,
   UserProfile,
-  LastInteraction,
 } from "@/types";
 import { handleSwipeHelper } from "@/utils/handleSwipe";
-import { GET_CURRENT_USER, GET_PREFERRED_USERS } from "@/utils/queries";
 import { REWIND_USER } from "@/utils/mutations";
+import { GET_CURRENT_USER, GET_PREFERRED_USERS } from "@/utils/queries";
+import { useUser } from "@clerk/nextjs";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
 import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
 
-// UI-extended version of LastInteraction to store swiped user
+// UI extension to store swiped user locally
 interface UILastInteraction extends LastInteraction {
   user: UserProfile;
 }
@@ -35,16 +36,27 @@ export default function DiscoverPage() {
   const [lastInteraction, setLastInteraction] =
     useState<UILastInteraction | null>(null);
 
-  // Temp filter values
   const [distanceKm, setDistanceKm] = useState(50);
   const [onlyOnline, setOnlyOnline] = useState(false);
 
-  // Persistent stored preferences snapshot (from DB)
   const [storedPrefs, setStoredPrefs] = useState<UserPreferencesMeta | null>(
     null
   );
 
-  /** 1️⃣ Load logged in user + stored filters from DB */
+  const [liveCoords, setLiveCoords] = useState<LiveLocation | null>(null);
+
+  // 1️⃣ Capture live location
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setLiveCoords({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        timestamp: pos.timestamp,
+      });
+    });
+  }, []);
+
+  // 2️⃣ Load current user once logged in
   useEffect(() => {
     if (!clerkUser?.id) return;
 
@@ -70,25 +82,31 @@ export default function DiscoverPage() {
     loadUser();
   }, [clerkUser]);
 
-  /** 2️⃣ Fetch preferred users (supports overrides for reset) */
+  // 3️⃣ Fetch preferred users
   const fetchUsers = useCallback(
     async (
       forceRefetch = false,
       overrides?: { distanceKm?: number; onlyOnline?: boolean }
     ) => {
       if (!currentUser) return;
+
       setLoading(true);
 
       const effectiveDistance = overrides?.distanceKm ?? distanceKm;
       const effectiveOnline = overrides?.onlyOnline ?? onlyOnline;
 
       try {
+        const sanitizedCoords = liveCoords
+          ? { lat: liveCoords.lat, lng: liveCoords.lng }
+          : undefined;
+
         const res = (await gqlClient.request(GET_PREFERRED_USERS, {
           clerkId: currentUser.clerkId,
           limit: 12,
           cursor: forceRefetch ? null : cursor,
           distanceKm: effectiveDistance,
           onlyOnline: effectiveOnline,
+          currentLocation: sanitizedCoords,
         })) as { getPreferredUsers: UserProfile[] };
 
         setUsers(res.getPreferredUsers);
@@ -104,41 +122,36 @@ export default function DiscoverPage() {
         setLoading(false);
       }
     },
-    [currentUser, cursor, distanceKm, onlyOnline]
+    [currentUser, cursor, distanceKm, onlyOnline, liveCoords]
   );
 
-  /** 3️⃣ Fetch users when user profile loads */
+  // 4️⃣ Fetch feed when both user + location available
   useEffect(() => {
-    if (currentUser) fetchUsers(true);
-  }, [currentUser, fetchUsers]);
+    if (currentUser && liveCoords) fetchUsers(true);
+  }, [currentUser, liveCoords, fetchUsers]);
 
-  /** 4️⃣ Apply temporary filters */
   const applyFilters = async () => {
     setCursor(null);
     await fetchUsers(true);
     setShowFilters(false);
   };
 
-  /** 5️⃣ Reset filters back to stored DB preferences */
   const resetFilters = async () => {
     if (!storedPrefs) return;
 
     const resetDistance = storedPrefs.distanceKm ?? 50;
     const resetOnline = false;
 
-    // update UI
     setDistanceKm(resetDistance);
     setOnlyOnline(resetOnline);
     setCursor(null);
 
-    // refetch using the reset values (no race with async state)
     await fetchUsers(true, {
       distanceKm: resetDistance,
       onlyOnline: resetOnline,
     });
   };
 
-  /** 6️⃣ Tinder swipe handler */
   const handleSwipe = async (
     dir: "left" | "right",
     swipedUser: UserProfile
@@ -162,7 +175,6 @@ export default function DiscoverPage() {
     }
   };
 
-  /** 7️⃣ Rewind handler */
   const handleRewind = async () => {
     if (!lastInteraction) return;
 
@@ -199,12 +211,7 @@ export default function DiscoverPage() {
 
       <div className="flex-1 w-full flex flex-col justify-center items-center relative py-6 -mt-4">
         {loading ? (
-          <div className="flex flex-col items-center gap-4">
-            <LoadingSpinner size="lg" />
-            <p className="text-muted-foreground animate-pulse">
-              Finding people near you...
-            </p>
-          </div>
+          <TinderSearchLoader />
         ) : users.length === 0 ? (
           <div className="text-center space-y-4 max-w-md px-6">
             <div className="w-20 h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">

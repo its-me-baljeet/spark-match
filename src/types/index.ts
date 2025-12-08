@@ -123,3 +123,9 @@ export interface UserPreferencesMeta {
   distanceKm?: number;
   onlyOnline?: boolean;
 }
+
+export interface LiveLocation {
+  lat: number;
+  lng: number;
+  timestamp: number;
+}

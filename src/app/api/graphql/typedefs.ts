@@ -108,6 +108,7 @@ export const typeDefs = gql`
       cursor: String
       distanceKm: Int
       onlyOnline: Boolean
+      currentLocation: LocationInput
     ): [User!]!
     getUsersWhoLikedMe(clerkId: String!): [User!]!
     getMyMatches(clerkId: String!): [User!]!

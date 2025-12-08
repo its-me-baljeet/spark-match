@@ -70,6 +70,7 @@ export const GET_PREFERRED_USERS = gql`
     $cursor: String
     $distanceKm: Int
     $onlyOnline: Boolean
+    $currentLocation: LocationInput
   ) {
     getPreferredUsers(
       clerkId: $clerkId
@@ -77,6 +78,7 @@ export const GET_PREFERRED_USERS = gql`
       cursor: $cursor
       distanceKm: $distanceKm
       onlyOnline: $onlyOnline
+      currentLocation: $currentLocation
     ) {
       id
       name

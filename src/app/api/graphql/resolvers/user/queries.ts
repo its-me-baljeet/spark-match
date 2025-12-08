@@ -47,10 +47,18 @@ export async function getPreferredUsers(
     clerkId: string;
     distanceKm?: number;
     onlyOnline?: boolean;
+    currentLocation?: { lat: number; lng: number };
   },
   ctx: GraphQLContext
 ) {
-  const { limit = 10, cursor, clerkId, distanceKm, onlyOnline } = args;
+  const {
+    limit = 10,
+    cursor,
+    clerkId,
+    distanceKm,
+    onlyOnline,
+    currentLocation,
+  } = args;
 
   await ctx.db.user.update({
     where: { clerkId },
@@ -108,7 +116,6 @@ export async function getPreferredUsers(
     if (gender) where.gender = gender;
   }
 
-
   let users = await ctx.db.user.findMany({
     take: limit,
     skip: cursor ? 1 : 0,
@@ -118,24 +125,27 @@ export async function getPreferredUsers(
     orderBy: { createdAt: "desc" },
   });
 
-  if (distanceKm && currentUser.location) {
-    const toRad = (v: number) => (v * Math.PI) / 180;
-    users = users.filter((u) => {
-      if (!u.location) return false; // If no location, exclude user
+if (distanceKm) {
+  const origin = currentLocation ?? currentUser.location;
+  const toRad = (v: number) => (v * Math.PI) / 180;
 
-      const d =
-        6371 *
-        Math.acos(
-          Math.sin(toRad(currentUser.location.lat)) *
-            Math.sin(toRad(u.location.lat)) +
-            Math.cos(toRad(currentUser.location.lat)) *
-              Math.cos(toRad(u.location.lat)) *
-              Math.cos(toRad(u.location.lng - currentUser.location.lng))
-        );
+  users = users.filter((u) => {
+    if (!u.location) return false;
 
-      return d <= distanceKm;
-    });
-  }
+    const d =
+      6371 *
+      Math.acos(
+        Math.sin(toRad(origin.lat)) *
+          Math.sin(toRad(u.location.lat)) +
+          Math.cos(toRad(origin.lat)) *
+            Math.cos(toRad(u.location.lat)) *
+            Math.cos(toRad(u.location.lng - origin.lng))
+      );
+
+    return d <= distanceKm;
+  });
+}
+
 
   return users.map(formatUser);
 }
