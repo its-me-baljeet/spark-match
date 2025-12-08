@@ -1,5 +1,3 @@
-// app/likes/page.tsx
-
 "use client";
 
 import gqlClient from "@/services/graphql";
@@ -7,11 +5,9 @@ import { GET_USERS_WHO_LIKED_ME } from "@/utils/queries";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { UserProfile } from "@/types";
-import { TinderCard } from "@/components/discover/tinder-card";
-import { handleSwipeHelper } from "@/utils/handleSwipe";
 import { LoadingSpinner } from "@/components/loader/loading-spinner";
-
-import { AnimatePresence, motion } from "framer-motion";
+import { LikesCard } from "@/components/cards/like-card";
+import { handleSwipeHelper } from "@/utils/handleSwipe";
 
 export default function LikesPage() {
   const { user } = useUser();
@@ -24,10 +20,10 @@ export default function LikesPage() {
     const fetchLikes = async () => {
       try {
         setLoading(true);
-        const res = await gqlClient.request<{ getUsersWhoLikedMe: UserProfile[] }>(
-          GET_USERS_WHO_LIKED_ME,
-          { clerkId: user.id }
-        );
+        const res = await gqlClient.request<{
+          getUsersWhoLikedMe: UserProfile[];
+        }>(GET_USERS_WHO_LIKED_ME, { clerkId: user.id });
+
         setUsers(res.getUsersWhoLikedMe);
       } catch (error) {
         console.error("Error fetching likes:", error);
@@ -39,57 +35,54 @@ export default function LikesPage() {
     fetchLikes();
   }, [user]);
 
-  const handleSwipe = async (dir: "left" | "right", swipedUser: UserProfile) => {
-    if (!user) return;
-    
-    // Remove the user from state immediately for instant UI update
+  // ⭐ FIXED handleSwipe() for Likes Page
+  const handleSwipe = async (
+    dir: "left" | "right",
+    swipedUser: UserProfile
+  ) => {
+    if (!user?.id) return;
+
+    // Remove from UI instantly
     setUsers((prev) => prev.filter((u) => u.id !== swipedUser.id));
-    
-    // Then perform the actual like/pass action
+
+    // Perform like or pass action
     await handleSwipeHelper({
       dir,
       swipedUser,
-      currentUserId: user.id,
+      currentUserId: user.id, // clerkId
     });
   };
 
   return (
-    <main className="flex justify-center items-center h-[calc(100vh-125px)] px-4">
+    <main className="px-4 py-6 min-h-[calc(100vh-120px)]">
       {loading ? (
-        <LoadingSpinner size="lg" />
+        <div className="flex justify-center mt-20">
+          <LoadingSpinner size="lg" />
+        </div>
       ) : users.length === 0 ? (
-        <p className="text-center text-muted-foreground text-lg font-medium leading-relaxed">
-          No new likes yet.<br />
-          🔁 Keep swiping in <span className="font-semibold text-primary">Discover</span>!
-        </p>
+        <div className="text-center max-w-md min-h-[80vh] md:min-h-[calc(100vh-120px)] flex flex-col items-center mx-auto justify-center">
+          <div className="text-8xl mb-6">💞</div>
+          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+            No Likes Yet
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Keep swiping to find your perfect match! ⚡
+          </p>
+        </div>
       ) : (
-        <div className="relative max-w-[420px] w-full h-[80vh]">
-          <AnimatePresence>
-            {users
-              .slice(0, 3) // only show first 3
-              .reverse() // render topmost last
-              .map((u, i) => (
-                <motion.div
-                  key={u.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{ zIndex: i + 1 }}
-                >
-                  <TinderCard
-                    onRewind={() => {}}
-                    user={u}
-                    isTop={i === 0}
-                    onSwipe={(dir) => handleSwipe(dir, u)}
-                    onOpen={() => console.log("Open profile of:", u.name)}
-                    styleIndex={i}
-                    lastInteraction={null}
-                  />
-                </motion.div>
-              ))}
-          </AnimatePresence>
+        <div className="flex flex-col items-center gap-6">
+          <h1 className="text-xl md:text-2xl md: font-bold bg-gradient-to-r from-rose-500 via-rose-500 to-red-500 bg-clip-text text-transparent">
+            Likes You
+          </h1>
+          {users.map((u) => (
+            <LikesCard
+              key={u.id}
+              user={u}
+              onOpen={() => console.log("open", u.id)}
+              onLike={() => handleSwipe("right", u)}
+              onPass={() => handleSwipe("left", u)}
+            />
+          ))}
         </div>
       )}
     </main>

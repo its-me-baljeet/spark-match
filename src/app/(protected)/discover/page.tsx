@@ -3,6 +3,7 @@
 import FiltersPanel from "@/components/discover/filters";
 import { TinderCard } from "@/components/discover/tinder-card";
 import { TinderSearchLoader } from "@/components/loader/tinder-search-loader";
+import { useSessionLocation } from "@/hooks/use-session-location";
 import gqlClient from "@/services/graphql";
 import {
   LastInteraction,
@@ -19,7 +20,6 @@ import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-// UI extension to store swiped user locally
 interface UILastInteraction extends LastInteraction {
   user: UserProfile;
 }
@@ -43,20 +43,8 @@ export default function DiscoverPage() {
     null
   );
 
-  const [liveCoords, setLiveCoords] = useState<LiveLocation | null>(null);
+  const liveCoords = useSessionLocation() as LiveLocation | null;
 
-  // 1️⃣ Capture live location
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      setLiveCoords({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        timestamp: pos.timestamp,
-      });
-    });
-  }, []);
-
-  // 2️⃣ Load current user once logged in
   useEffect(() => {
     if (!clerkUser?.id) return;
 
@@ -82,7 +70,6 @@ export default function DiscoverPage() {
     loadUser();
   }, [clerkUser]);
 
-  // 3️⃣ Fetch preferred users
   const fetchUsers = useCallback(
     async (
       forceRefetch = false,
@@ -125,10 +112,12 @@ export default function DiscoverPage() {
     [currentUser, cursor, distanceKm, onlyOnline, liveCoords]
   );
 
-  // 4️⃣ Fetch feed when both user + location available
+  // 4️⃣ Fetch feed when currentUser is available.
+  // We don't block on geolocation permission — backend will fall back to user's saved location if currentLocation is undefined.
   useEffect(() => {
-    if (currentUser && liveCoords) fetchUsers(true);
-  }, [currentUser, liveCoords, fetchUsers]);
+    if (currentUser) fetchUsers(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
   const applyFilters = async () => {
     setCursor(null);
@@ -152,7 +141,7 @@ export default function DiscoverPage() {
     });
   };
 
-  const handleSwipe = async (
+   const handleSwipe = async (
     dir: "left" | "right",
     swipedUser: UserProfile
   ) => {
