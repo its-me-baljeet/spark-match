@@ -1,12 +1,13 @@
 "use client";
-import { useState } from "react";
+import { Camera, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { X, Camera, Upload, ArrowUp, ArrowDown } from "lucide-react";
+import { useState } from "react";
 
 interface PhotoManagerProps {
   photos: string[];
   onChange: (photos: string[]) => void;
   maxPhotos?: number;
+  saving?: boolean;
 }
 
 interface PhotoItem {
@@ -19,6 +20,7 @@ export default function PhotoManager({
   photos,
   onChange,
   maxPhotos = 6,
+  saving,
 }: PhotoManagerProps) {
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>(
     photos.map((url, index) => ({ url, order: index }))
@@ -87,13 +89,16 @@ export default function PhotoManager({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-foreground">Photos</h3>
-          <p className="text-sm text-muted-foreground">
+          {/* <p className="text-sm text-muted-foreground">
             {photoItems.length}/{maxPhotos} photos • Drag to reorder
-          </p>
+          </p> */}
         </div>
 
         {photoItems.length < maxPhotos && (
-          <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-pink-500/25 transition-all duration-200 cursor-pointer">
+          <label
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-pink-500/25 transition-all duration-200 cursor-pointer"
+            aria-disabled={saving}
+          >
             <Upload className="h-4 w-4" />
             Add Photos
             <input
@@ -102,6 +107,7 @@ export default function PhotoManager({
               multiple
               hidden
               onChange={handleFileChange}
+              disabled={saving}
             />
           </label>
         )}
@@ -161,6 +167,7 @@ export default function PhotoManager({
               hidden
               accept="image/*"
               onChange={handleFileChange}
+              disabled={saving}
             />
           </label>
         </div>

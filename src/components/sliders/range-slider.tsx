@@ -7,6 +7,7 @@ interface RangeSliderProps {
   onChange: (values: [number, number]) => void;
   label: string;
   step?: number;
+  saving?: boolean;
 }
 
 export function RangeSlider({
@@ -16,6 +17,7 @@ export function RangeSlider({
   onChange,
   label,
   step = 1,
+  saving,
 }: RangeSliderProps) {
   const [dragging, setDragging] = useState<"min" | "max" | null>(null);
 
@@ -63,6 +65,7 @@ export function RangeSlider({
   className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-0 pointer-events-none ${
     dragging === "min" ? "z-30" : "z-20"
   }`}
+  disabled={saving}
 />
 
 <input
@@ -77,6 +80,7 @@ export function RangeSlider({
   className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-0 pointer-events-none ${
     dragging === "max" ? "z-30" : "z-20"
   }`}
+  disabled={saving}
 />
 
       </div>

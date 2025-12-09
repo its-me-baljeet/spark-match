@@ -7,9 +7,11 @@ export interface BasicInfoProps {
   bio: string;
   gender: "MALE" | "FEMALE" | "OTHER";
   birthday: string;
+  saving?: boolean;
+
   onChange: <K extends "name" | "bio" | "gender" | "birthday">(
     key: K,
-    value: BasicInfoProps[K]
+    value: string | BasicInfoProps["gender"]
   ) => void;
 }
 
@@ -19,7 +21,11 @@ export function BasicInfoForm({
   gender,
   birthday,
   onChange,
+  saving,
 }: BasicInfoProps) {
+  const maxBirthday = new Date();
+  maxBirthday.setFullYear(maxBirthday.getFullYear() - 18);
+  const maxDate = maxBirthday.toISOString().split("T")[0];
   return (
     <div className="space-y-6">
       <SectionHeader
@@ -93,13 +99,16 @@ export function BasicInfoForm({
           <label className="block text-sm font-semibold text-foreground mb-3">
             Birthday
           </label>
+
           <input
-            value={birthday}
             type="date"
+            value={birthday}
             onChange={(e) => onChange("birthday", e.target.value)}
+            disabled={saving}
+            max={maxDate} // ⛔ User cannot pick a future date or anything < 18 years old
             className="w-full bg-background border border-border rounded-xl px-4 py-3 
-                       focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 
-                       transition-all duration-200 text-foreground"
+                     focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 
+                     transition-all duration-200 text-foreground"
             required
           />
         </div>

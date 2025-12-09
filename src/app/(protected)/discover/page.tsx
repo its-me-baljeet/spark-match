@@ -211,7 +211,7 @@ export default function DiscoverPage() {
               Try adjusting your preferences to see more people.
             </p>
             <div
-              onClick={resetFilters}
+              onClick={applyFilters}
               className="cursor-pointer flex items-center justify-center gap-2"
             >
               <RotateCcw className="h-5 w-5" /> Refresh Suggestions

@@ -71,7 +71,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
       className="relative w-[90vw] max-w-[400px] h-[70vh] sm:h-[75vh] md:h-[75vh] rounded-3xl bg-card shadow-2xl overflow-hidden touch-pan-y select-none"
       style={{
         boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
-        cursor: isTop ? "grab" : "default",
+        cursor: "default",
       }}
     >
       {/* Full Height Image Button */}
@@ -160,6 +160,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
             disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-black/20 disabled:hover:text-yellow-400
             transition-all duration-300 hover:scale-110 active:scale-95
             shadow-lg
+            cursor-pointer
           "
         >
           <RotateCcw className="w-5 h-5" />
@@ -179,6 +180,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
             hover:bg-rose-500 hover:text-white hover:border-rose-500
             transition-all duration-300 hover:scale-110 active:scale-95
             shadow-lg
+            cursor-pointer
           "
         >
           <X className="w-7 h-7" strokeWidth={2.5} />
@@ -198,6 +200,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
             hover:bg-emerald-500 hover:text-white hover:border-emerald-500
             transition-all duration-300 hover:scale-110 active:scale-95
             shadow-lg
+            cursor-pointer
           "
         >
           <Heart className="w-7 h-7" strokeWidth={2.5} />

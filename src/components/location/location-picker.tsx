@@ -14,11 +14,13 @@ export interface LocationPickerProps {
   location: Location;
   onChange: (location: Location) => void;
   onLocationFetch: () => void;
+  saving?: boolean;
 }
 
 export default function LocationPicker({
   onChange,
   onLocationFetch,
+  saving,
 }: LocationPickerProps) {
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export default function LocationPicker({
             type="button"
             onClick={() => setManualLocation(true)}
             className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+            disabled={saving}
           >
             Enter manually
           </button>
