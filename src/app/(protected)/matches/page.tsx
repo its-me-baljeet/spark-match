@@ -61,7 +61,7 @@ export default function MatchesPage() {
 
   if (matches.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
+      <div className="flex flex-col justify-center items-center flex-1 text-center min-h-[calc(100vh-200px)]">
         <div className="text-center max-w-md">
           <div className="text-8xl mb-6">💞</div>
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
