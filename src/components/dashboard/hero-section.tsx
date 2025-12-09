@@ -47,7 +47,7 @@ export default function HeroSection() {
   return (
     <main className="relative flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-6 text-center text-foreground overflow-hidden py-5">
       <div className="text-4xl sm:text-5xl font-bold mb-4 text-foreground flex items-center  w-5xl">
-        <div className="w-3/5 flex justify-end">
+        <div className="w-4/6 flex justify-end">
           <h1 className="">SparkMatch</h1>
         </div>
         <div className="w-2/5 flex justify-end">
