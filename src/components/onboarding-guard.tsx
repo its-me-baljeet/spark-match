@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { LoadingSpinner } from "./loader/loading-spinner";
+import Header from "./header/header";
 
 interface OnboardingGuardProps {
   children: ReactNode;
@@ -25,7 +26,6 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
         return;
       }
 
-      // Skip onboarding check if already on onboarding page
       if (pathname === "/onboarding") {
         setChecking(false);
         return;
@@ -34,17 +34,15 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
       try {
         const data: { checkExistingUser: boolean } = await gqlClient.request(
           CHECK_USER,
-          { clerkId: user.id } // Changed from email to clerkId
+          { clerkId: user.id }
         );
 
         if (!data?.checkExistingUser) {
-          // Store the path they were trying to access
           sessionStorage.setItem("redirectAfterOnboarding", pathname);
           router.push("/onboarding");
         }
       } catch (err) {
         console.error("OnboardingGuard error:", err);
-        // On error, allow through but maybe redirect to onboarding to be safe
         router.push("/onboarding");
       } finally {
         setChecking(false);
@@ -54,13 +52,22 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
     checkOnboarding();
   }, [user, isLoaded, router, pathname]);
 
+  // ⭐ Render same structure on server + client
   if (checking) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-100px)] md:h-screen">
-        <LoadingSpinner />
-      </div>
+      <>
+        <Header />
+        <div className="flex-1 flex min-h-[calc(100vh-150px)] md:min-h-[calc(100vh-100px)] justify-center items-center h-full">
+          <LoadingSpinner size="lg" />
+        </div>
+      </>
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <Header />
+      {children}
+    </>
+  );
 }

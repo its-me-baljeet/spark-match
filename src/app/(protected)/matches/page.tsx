@@ -11,6 +11,7 @@ import { getLastSeenText } from "@/utils/helper";
 import { Trash2 } from "lucide-react";
 import { DELETE_MATCH } from "@/utils/mutations";
 import ChatPlaceholder from "@/components/discover/chat-placeholder";
+import { LoadingSpinner } from "@/components/loader/loading-spinner";
 
 export default function MatchesPage() {
   const user = useUser();
@@ -52,13 +53,8 @@ export default function MatchesPage() {
 
   if (loading) {
     return (
-      <div className="h-[calc(100vh-150px)] md:h-[calc(100vh-100px)] flex justify-center items-center">
-        <div className="flex flex-col justify-center items-center gap-4">
-          <div className="h-8 w-8 md:w-16 md:h-16 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-lg font-medium text-muted-foreground">
-            Loading your matches...
-          </p>
-        </div>
+      <div className="flex-1 flex min-h-[calc(100vh-150px)] md:min-h-[calc(100vh-100px)] justify-center items-center h-full">
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

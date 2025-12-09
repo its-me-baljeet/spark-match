@@ -93,7 +93,6 @@ export interface LastInteraction {
   user: UserProfile;
 }
 
-
 export interface cityData {
   city?: string | null;
   town?: string | null;

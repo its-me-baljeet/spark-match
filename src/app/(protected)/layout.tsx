@@ -1,4 +1,3 @@
-import Header from "@/components/header/header";
 import OnboardingGuard from "@/components/onboarding-guard";
 
 export default function ProtectedLayout({
@@ -8,7 +7,6 @@ export default function ProtectedLayout({
 }) {
   return (
     <OnboardingGuard>
-      <Header />
       {children}
     </OnboardingGuard>
   );

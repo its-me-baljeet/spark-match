@@ -69,7 +69,6 @@ export const GET_PREFERRED_USERS = gql`
     $limit: Int
     $cursor: String
     $distanceKm: Int
-    $onlyOnline: Boolean
     $currentLocation: LocationInput
   ) {
     getPreferredUsers(
@@ -77,7 +76,6 @@ export const GET_PREFERRED_USERS = gql`
       limit: $limit
       cursor: $cursor
       distanceKm: $distanceKm
-      onlyOnline: $onlyOnline
       currentLocation: $currentLocation
     ) {
       id

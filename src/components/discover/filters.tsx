@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Slider } from "../ui/slider";
 import { GradientButton } from "../sliders/gradient-button";
 import { XMarkIcon } from "@heroicons/react/24/solid";
@@ -16,10 +17,6 @@ interface FiltersPanelProps {
   setOnlyOnline: (v: boolean) => void;
   resetFilters: () => void;
   applyFilters: () => void;
-  fetchUsers: (
-    forceRefetch?: boolean,
-    overrides?: { distanceKm?: number; onlyOnline?: boolean }
-  ) => Promise<void>;
 }
 
 export default function FiltersPanel({
@@ -31,11 +28,27 @@ export default function FiltersPanel({
   setOnlyOnline,
   resetFilters,
   applyFilters,
-  fetchUsers,
 }: FiltersPanelProps) {
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  // Close panel on outside click
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!panelRef.current) return;
+      if (showFilters && !panelRef.current.contains(e.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [showFilters]);
+
   return (
-    <div className="w-full max-w-[420px] pt-3 z-50 relative">
+    <div ref={panelRef} className="w-full max-w-[420px] pt-3 z-50 relative">
+      {/* Top Buttons */}
       <div className="flex gap-3 items-center px-2 border-b border-border pb-3">
+        {/* Distance Button */}
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`
@@ -48,18 +61,13 @@ export default function FiltersPanel({
             }
           `}
         >
-          <span className="font-medium text-sm">
-            Distance ({distanceKm}km)
-          </span>
+          <span className="font-medium text-sm">Distance ({distanceKm}km)</span>
           <ChevronDown className="w-5 h-5" />
         </button>
 
+        {/* Online Toggle (local only) */}
         <button
-          onClick={() => {
-            const newValue = !onlyOnline;
-            setOnlyOnline(newValue);
-            fetchUsers(true, { onlyOnline: newValue });
-          }}
+          onClick={() => setOnlyOnline(!onlyOnline)}
           className={`
             flex items-center gap-2 px-4 py-2 rounded-full 
             backdrop-blur-xl border transition-all duration-300 active:scale-95
@@ -80,7 +88,7 @@ export default function FiltersPanel({
         </button>
       </div>
 
-      {/* Floating Filter Panel */}
+      {/* Dropdown Filter Panel */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
@@ -101,6 +109,7 @@ export default function FiltersPanel({
                 </button>
               </div>
 
+              {/* Slider */}
               <div className="space-y-6">
                 <span className="text-sm font-medium text-muted-foreground">
                   {distanceKm} km

@@ -18,7 +18,7 @@ import { useUser } from "@clerk/nextjs";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
 import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface UILastInteraction extends LastInteraction {
   user: UserProfile;
@@ -29,9 +29,9 @@ export default function DiscoverPage() {
 
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [cursor, setCursor] = useState<string | null>(null);
+  const [originalUsers, setOriginalUsers] = useState<UserProfile[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [showFilters, setShowFilters] = useState(false);
   const [lastInteraction, setLastInteraction] =
     useState<UILastInteraction | null>(null);
@@ -39,16 +39,15 @@ export default function DiscoverPage() {
   const [distanceKm, setDistanceKm] = useState(50);
   const [onlyOnline, setOnlyOnline] = useState(false);
 
-  const [storedPrefs, setStoredPrefs] = useState<UserPreferencesMeta | null>(
-    null
-  );
-
+  const [storedPrefs, setStoredPrefs] = useState<UserPreferencesMeta | null>(null);
   const liveCoords = useSessionLocation() as LiveLocation | null;
+
+  const isRewinding = useRef(false);
 
   useEffect(() => {
     if (!clerkUser?.id) return;
 
-    const loadUser = async () => {
+    const load = async () => {
       try {
         const res = (await gqlClient.request(GET_CURRENT_USER, {
           clerkId: clerkUser.id,
@@ -56,34 +55,31 @@ export default function DiscoverPage() {
 
         if (!res.getCurrentUser) return;
 
-        setCurrentUser(res.getCurrentUser);
+        const me = res.getCurrentUser;
+        setCurrentUser(me);
 
-        if (res.getCurrentUser.preferences) {
-          setDistanceKm(res.getCurrentUser.preferences.distanceKm);
-          setStoredPrefs(res.getCurrentUser.preferences);
+        if (me.preferences) {
+          setDistanceKm(me.preferences.distanceKm);
+          setStoredPrefs(me.preferences);
         }
       } catch (err) {
         console.error("User load failed:", err);
       }
     };
 
-    loadUser();
+    load();
   }, [clerkUser]);
 
   const fetchUsers = useCallback(
-    async (
-      forceRefetch = false,
-      overrides?: { distanceKm?: number; onlyOnline?: boolean }
-    ) => {
+    async (forceRefetch = false, overrides?: { distanceKm?: number }) => {
       if (!currentUser) return;
 
       setLoading(true);
 
       const effectiveDistance = overrides?.distanceKm ?? distanceKm;
-      const effectiveOnline = overrides?.onlyOnline ?? onlyOnline;
 
       try {
-        const sanitizedCoords = liveCoords
+        const coords = liveCoords
           ? { lat: liveCoords.lat, lng: liveCoords.lng }
           : undefined;
 
@@ -92,100 +88,129 @@ export default function DiscoverPage() {
           limit: 12,
           cursor: forceRefetch ? null : cursor,
           distanceKm: effectiveDistance,
-          onlyOnline: effectiveOnline,
-          currentLocation: sanitizedCoords,
+          currentLocation: coords,
         })) as { getPreferredUsers: UserProfile[] };
 
-        setUsers(res.getPreferredUsers);
-
+        setOriginalUsers(res.getPreferredUsers);
         setCursor(
           res.getPreferredUsers.length > 0
             ? res.getPreferredUsers[res.getPreferredUsers.length - 1].id
             : null
         );
       } catch (err) {
-        console.error("Fetching users failed:", err);
+        console.error("Fetch users failed:", err);
       } finally {
         setLoading(false);
       }
     },
-    [currentUser, cursor, distanceKm, onlyOnline, liveCoords]
+    [currentUser, cursor, liveCoords, distanceKm]
   );
 
-  // 4️⃣ Fetch feed when currentUser is available.
-  // We don't block on geolocation permission — backend will fall back to user's saved location if currentLocation is undefined.
   useEffect(() => {
     if (currentUser) fetchUsers(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
-  const applyFilters = async () => {
-    setCursor(null);
-    await fetchUsers(true);
-    setShowFilters(false);
-  };
+  const filteredUsers = useMemo(() => {
+    if (!onlyOnline) return originalUsers;
+    return originalUsers.filter((u) => u.isOnline);
+  }, [onlyOnline, originalUsers]);
 
-  const resetFilters = async () => {
-    if (!storedPrefs) return;
+  useEffect(() => {
+    setUsers(filteredUsers);
+  }, [filteredUsers]);
 
-    const resetDistance = storedPrefs.distanceKm ?? 50;
-    const resetOnline = false;
-
-    setDistanceKm(resetDistance);
-    setOnlyOnline(resetOnline);
-    setCursor(null);
-
-    await fetchUsers(true, {
-      distanceKm: resetDistance,
-      onlyOnline: resetOnline,
-    });
-  };
-
-   const handleSwipe = async (
+  const handleSwipe = async (
     dir: "left" | "right",
     swipedUser: UserProfile
   ) => {
     if (!currentUser?.clerkId) return;
 
     setUsers((prev) => prev.filter((u) => u.id !== swipedUser.id));
+    setOriginalUsers((prev) => prev.filter((u) => u.id !== swipedUser.id));
 
-    const resp = await handleSwipeHelper({
-      dir,
-      swipedUser,
-      currentUserId: currentUser.clerkId,
-    });
-
-    if (resp?.type && resp?.id) {
-      setLastInteraction({
-        type: resp.type,
-        id: resp.id,
-        user: swipedUser,
+    try {
+      const resp = await handleSwipeHelper({
+        dir,
+        swipedUser,
+        currentUserId: currentUser.clerkId,
       });
+
+      if (resp?.type && resp?.id) {
+        setLastInteraction({ type: resp.type, id: resp.id, user: swipedUser });
+      }
+    } catch (err) {
+      console.error("Swipe failed:", err);
+      setUsers((prev) => [swipedUser, ...prev]);
+      setOriginalUsers((prev) => [swipedUser, ...prev]);
     }
   };
 
   const handleRewind = async () => {
-    if (!lastInteraction) return;
+    if (!lastInteraction || isRewinding.current) return;
+
+    isRewinding.current = true;
+
+    const restoredUser = lastInteraction.user;
+    
+    setOriginalUsers((prev) => {
+      if (prev.some(u => u.id === restoredUser.id)) return prev;
+      return [restoredUser, ...prev];
+    });
+    
+    setUsers((prev) => {
+      if (prev.some(u => u.id === restoredUser.id)) return prev;
+      return [restoredUser, ...prev];
+    });
+
+    setLastInteraction(null);
 
     try {
-      const resp = (await gqlClient.request(REWIND_USER, {
-        lastInteraction: {
-          type: lastInteraction.type,
-          id: lastInteraction.id,
-        },
+      const res = (await gqlClient.request(REWIND_USER, {
+        lastInteraction: { type: lastInteraction.type, id: lastInteraction.id },
       })) as { rewindUser: boolean };
 
-      if (resp.rewindUser) {
-        setUsers((prev) => [lastInteraction.user, ...prev]);
-        setLastInteraction(null);
+      if (!res.rewindUser) {
+        console.error("Server rewind failed");
+        setOriginalUsers((prev) => prev.filter((u) => u.id !== restoredUser.id));
+        setUsers((prev) => prev.filter((u) => u.id !== restoredUser.id));
+        setLastInteraction(lastInteraction);
       }
     } catch (err) {
       console.error("Rewind failed:", err);
+      setOriginalUsers((prev) => prev.filter((u) => u.id !== restoredUser.id));
+      setUsers((prev) => prev.filter((u) => u.id !== restoredUser.id));
+      setLastInteraction(lastInteraction);
+    } finally {
+      setTimeout(() => {
+        isRewinding.current = false;
+      }, 500);
     }
   };
 
+  const applyFilters = async () => {
+    setCursor(null);
+    setShowFilters(false);
+    await fetchUsers(true);
+  };
+
+  const resetFilters = async () => {
+    if (!storedPrefs) return;
+
+    const resetDistance = storedPrefs.distanceKm ?? 50;
+
+    setDistanceKm(resetDistance);
+    setOnlyOnline(false);
+    setCursor(null);
+
+    await fetchUsers(true, { distanceKm: resetDistance });
+  };
+
   return (
-    <main className="relative w-full min-h-[calc(100vh-125px)] md:min-h-[calc(100vh-64px)] bg-gradient-to-br from-background via-background to-primary/5 flex flex-col items-center overflow-hidden">
+    <main
+      className="relative w-full min-h-[calc(100vh-125px)] md:min-h-[calc(100vh-64px)]
+                     bg-gradient-to-br from-background via-background to-primary/5
+                     flex flex-col items-center overflow-hidden"
+    >
       <FiltersPanel
         showFilters={showFilters}
         setShowFilters={setShowFilters}
@@ -195,7 +220,6 @@ export default function DiscoverPage() {
         setOnlyOnline={setOnlyOnline}
         resetFilters={resetFilters}
         applyFilters={applyFilters}
-        fetchUsers={fetchUsers}
       />
 
       <div className="flex-1 w-full flex flex-col justify-center items-center relative py-6 -mt-4">
@@ -208,7 +232,9 @@ export default function DiscoverPage() {
             </div>
             <h3 className="text-2xl font-bold">No one new around you</h3>
             <p className="text-muted-foreground">
-              Try adjusting your preferences to see more people.
+              {onlyOnline
+                ? "No online users found. Try turning off the online filter."
+                : "Try adjusting your preferences to see more people."}
             </p>
             <div
               onClick={applyFilters}
@@ -218,8 +244,11 @@ export default function DiscoverPage() {
             </div>
           </div>
         ) : (
-          <div className="relative w-full max-w-[420px] h-[70vh] sm:h-[75vh] md:h-[80vh] flex items-center justify-center">
-            <AnimatePresence>
+          <div
+            className="relative w-full max-w-[420px] h-[70vh] sm:h-[75vh] md:h-[80vh]
+                          flex items-center justify-center"
+          >
+            <AnimatePresence mode="popLayout">
               {users
                 .slice(0, 3)
                 .reverse()

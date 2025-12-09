@@ -56,7 +56,7 @@ export default function LikesPage() {
   return (
     <div className="flex-1 px-4 py-6 flex flex-col justify-center">
       {loading ? (
-        <div className="flex-1 flex min-h-[calc(100vh-200px)] justify-center items-center h-full">
+        <div className="flex-1 flex min-h-[calc(100vh-200px)] md:min-h-[calc(100vh-150px)] justify-center items-center">
           <LoadingSpinner size="lg" />
         </div>
       ) : users.length === 0 ? (

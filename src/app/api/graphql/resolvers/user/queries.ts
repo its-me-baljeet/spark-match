@@ -46,7 +46,6 @@ export async function getPreferredUsers(
     cursor?: string;
     clerkId: string;
     distanceKm?: number;
-    onlyOnline?: boolean;
     currentLocation?: { lat: number; lng: number };
   },
   ctx: GraphQLContext
@@ -56,7 +55,6 @@ export async function getPreferredUsers(
     cursor,
     clerkId,
     distanceKm,
-    onlyOnline,
     currentLocation,
   } = args;
 
@@ -90,12 +88,7 @@ export async function getPreferredUsers(
     id: { notIn: [...likedUserIds, ...passedUserIds] },
     clerkId: { not: clerkId },
   };
-  // 🔥 Online filter
-  if (onlyOnline) {
-    const threshold = new Date(Date.now() - 5 * 60 * 1000);
-    where.lastActiveAt = { gte: threshold };
-  }
-
+  
   if (currentUser.preferences) {
     const { minAge, maxAge, gender } = currentUser.preferences;
     const today = new Date();

@@ -2,25 +2,21 @@
 
 import { useEffect, useState } from "react";
 
+interface StoredLocation {
+  lat: number;
+  lng: number;
+  timestamp: number;
+}
+
+const FIVE_MIN = 5 * 60 * 1000;
+
 export function useSessionLocation() {
-  const [location, setLocation] = useState<{
-    lat: number;
-    lng: number;
-    timestamp: number;
-  } | null>(null);
+  const [location, setLocation] = useState<StoredLocation | null>(null);
 
-  useEffect(() => {
-    //  Try sessionStorage first
-    const cached = sessionStorage.getItem("liveLocation");
-    if (cached) {
-        setLocation(JSON.parse(cached));
-        return;
-    }
-
-    // If no cached location → get geolocation once per tab session
+  const updateLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = {
+        const coords: StoredLocation = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           timestamp: Date.now(),
@@ -34,6 +30,28 @@ export function useSessionLocation() {
         setLocation(null);
       }
     );
+  };
+
+  useEffect(() => {
+    const cached = sessionStorage.getItem("liveLocation");
+
+    if (cached) {
+      const parsed: StoredLocation = JSON.parse(cached);
+
+      setLocation(parsed);
+
+      if (Date.now() - parsed.timestamp > FIVE_MIN) {
+        updateLocation();
+      }
+    } else {
+      updateLocation();
+    }
+
+    const interval = setInterval(() => {
+      updateLocation();
+    }, FIVE_MIN);
+
+    return () => clearInterval(interval);
   }, []);
 
   return location;
