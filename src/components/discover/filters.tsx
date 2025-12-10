@@ -3,7 +3,10 @@
 import { useEffect, useRef } from "react";
 import { Slider } from "../ui/slider";
 import { GradientButton } from "../sliders/gradient-button";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import {
+  AdjustmentsHorizontalIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/solid";
 import { Card } from "../cards/card";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,6 +20,8 @@ interface FiltersPanelProps {
   setOnlyOnline: (v: boolean) => void;
   resetFilters: () => void;
   applyFilters: () => void;
+  isDistanceChanged: boolean;
+  setIsDistanceChanged: (v: boolean) => void;
 }
 
 export default function FiltersPanel({
@@ -28,6 +33,8 @@ export default function FiltersPanel({
   setOnlyOnline,
   resetFilters,
   applyFilters,
+  isDistanceChanged,
+  setIsDistanceChanged,
 }: FiltersPanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,6 +56,7 @@ export default function FiltersPanel({
       {/* Top Buttons */}
       <div className="flex gap-3 items-center px-2 border-b border-border pb-3">
         {/* Distance Button */}
+        <AdjustmentsHorizontalIcon className="w-5 h-5 text-muted-foreground" />
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`
@@ -120,7 +128,10 @@ export default function FiltersPanel({
                   max={200}
                   step={1}
                   value={[distanceKm]}
-                  onValueChange={(val) => setDistanceKm(val[0])}
+                  onValueChange={(val) => {
+                    setDistanceKm(val[0]);
+                    setIsDistanceChanged(true);
+                  }}
                   className="py-2"
                 />
               </div>

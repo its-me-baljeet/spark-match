@@ -15,7 +15,6 @@ import { handleSwipeHelper } from "@/utils/handleSwipe";
 import { REWIND_USER } from "@/utils/mutations";
 import { GET_CURRENT_USER, GET_PREFERRED_USERS } from "@/utils/queries";
 import { useUser } from "@clerk/nextjs";
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
 import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -39,7 +38,10 @@ export default function DiscoverPage() {
   const [distanceKm, setDistanceKm] = useState(50);
   const [onlyOnline, setOnlyOnline] = useState(false);
 
-  const [storedPrefs, setStoredPrefs] = useState<UserPreferencesMeta | null>(null);
+  const [storedPrefs, setStoredPrefs] = useState<UserPreferencesMeta | null>(
+    null
+  );
+  const [isDistanceChanged, setIsDistanceChanged] = useState(false);
   const liveCoords = useSessionLocation() as LiveLocation | null;
 
   const isRewinding = useRef(false);
@@ -151,14 +153,14 @@ export default function DiscoverPage() {
     isRewinding.current = true;
 
     const restoredUser = lastInteraction.user;
-    
+
     setOriginalUsers((prev) => {
-      if (prev.some(u => u.id === restoredUser.id)) return prev;
+      if (prev.some((u) => u.id === restoredUser.id)) return prev;
       return [restoredUser, ...prev];
     });
-    
+
     setUsers((prev) => {
-      if (prev.some(u => u.id === restoredUser.id)) return prev;
+      if (prev.some((u) => u.id === restoredUser.id)) return prev;
       return [restoredUser, ...prev];
     });
 
@@ -171,7 +173,9 @@ export default function DiscoverPage() {
 
       if (!res.rewindUser) {
         console.error("Server rewind failed");
-        setOriginalUsers((prev) => prev.filter((u) => u.id !== restoredUser.id));
+        setOriginalUsers((prev) =>
+          prev.filter((u) => u.id !== restoredUser.id)
+        );
         setUsers((prev) => prev.filter((u) => u.id !== restoredUser.id));
         setLastInteraction(lastInteraction);
       }
@@ -190,7 +194,11 @@ export default function DiscoverPage() {
   const applyFilters = async () => {
     setCursor(null);
     setShowFilters(false);
+
+    if (!isDistanceChanged) return;
+
     await fetchUsers(true);
+    setIsDistanceChanged(false);
   };
 
   const resetFilters = async () => {
@@ -201,8 +209,12 @@ export default function DiscoverPage() {
     setDistanceKm(resetDistance);
     setOnlyOnline(false);
     setCursor(null);
+    setShowFilters(false);
+
+    if (!isDistanceChanged) return; 
 
     await fetchUsers(true, { distanceKm: resetDistance });
+    setIsDistanceChanged(false); 
   };
 
   return (
@@ -220,6 +232,8 @@ export default function DiscoverPage() {
         setOnlyOnline={setOnlyOnline}
         resetFilters={resetFilters}
         applyFilters={applyFilters}
+        isDistanceChanged={isDistanceChanged}
+        setIsDistanceChanged={setIsDistanceChanged}
       />
 
       <div className="flex-1 w-full flex flex-col justify-center items-center relative py-6 -mt-4">
@@ -227,9 +241,6 @@ export default function DiscoverPage() {
           <TinderSearchLoader />
         ) : users.length === 0 ? (
           <div className="text-center space-y-4 max-w-md px-6">
-            <div className="w-20 h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AdjustmentsHorizontalIcon className="w-10 h-10 text-muted-foreground" />
-            </div>
             <h3 className="text-2xl font-bold">No one new around you</h3>
             <p className="text-muted-foreground">
               {onlyOnline
@@ -240,7 +251,11 @@ export default function DiscoverPage() {
               onClick={applyFilters}
               className="cursor-pointer flex items-center justify-center gap-2"
             >
-              <RotateCcw className="h-5 w-5" /> Refresh Suggestions
+              <RotateCcw className="h-5 w-5" />
+              <span className="underline underline-offset-1">
+                {" "}
+                Refresh Suggestions
+              </span>
             </div>
           </div>
         ) : (

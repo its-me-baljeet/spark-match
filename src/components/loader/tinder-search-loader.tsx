@@ -2,16 +2,22 @@
 
 export function TinderSearchLoader() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-10 animate-fade">
-      
-      {/* Pulse Radar Circle */}
-      <div className="relative w-24 h-24">
-        <div className="absolute inset-0 rounded-full bg-pink-500/30 animate-ping"></div>
-        <div className="absolute inset-4 rounded-full bg-red-500/70 animate-pulse"></div>
+    <div className="flex flex-col items-center justify-center gap-6 py-10 select-none">
+      {/* Ripple Radar */}
+      <div className="relative w-28 h-28">
+        {/* Outer ripple */}
+        <span className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500/40 via-orange-500/40 to-rose-500/40 animate-radar opacity-70"></span>
+
+        {/* Middle ripple */}
+        <span className="absolute inset-3 rounded-full bg-gradient-to-r from-rose-500/30 via-orange-500/30 to-rose-500/30 animate-radar-slow opacity-60"></span>
+
+        {/* Inner pulse */}
+        <span className="absolute inset-8 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 shadow-[0_0_20px_rgba(255,99,99,0.6)] animate-inner-pulse"></span>
       </div>
 
-      <p className="text-lg font-medium text-muted-foreground animate-bounce">
-        Finding people near you...
+      {/* Text */}
+      <p className="text-lg font-medium text-muted-foreground animate-subtle-bounce tracking-wide">
+        Finding people near you…
       </p>
     </div>
   );

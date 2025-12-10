@@ -8,6 +8,7 @@ import { UserProfile } from "@/types";
 import { LoadingSpinner } from "@/components/loader/loading-spinner";
 import { LikesCard } from "@/components/cards/like-card";
 import { handleSwipeHelper } from "@/utils/handleSwipe";
+import Image from "next/image";
 
 export default function LikesPage() {
   const { user } = useUser();
@@ -61,7 +62,13 @@ export default function LikesPage() {
         </div>
       ) : users.length === 0 ? (
         <div className="flex flex-col justify-center items-center flex-1 text-center min-h-[calc(100vh-200px)]">
-          <div className="text-8xl mb-6">💞</div>
+          <Image
+            src={"/like.png"}
+            alt="No Likes"
+            width={100}
+            height={100}
+            className="mx-auto"
+          />
 
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
             No Likes Yet

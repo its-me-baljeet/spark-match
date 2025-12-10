@@ -63,7 +63,7 @@ export default function MatchesPage() {
     return (
       <div className="flex flex-col justify-center items-center flex-1 text-center min-h-[calc(100vh-200px)]">
         <div className="text-center max-w-md">
-          <div className="text-8xl mb-6">💞</div>
+          <Image src={'/match.png'} alt="No Matches" width={100} height={100} className="mx-auto"/>
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
             No Matches Yet
           </h2>

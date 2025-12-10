@@ -92,7 +92,22 @@ export const TinderCard: React.FC<TinderCardProps> = ({
         />
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/80" />
+{/* 4-Zone Vertical Gradient Overlay */}
+<div className="absolute inset-0 pointer-events-none">
+
+  {/* Zone 1 — Top Transparent (image fully visible) */}
+  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent to-black/10" />
+
+  {/* Zone 2 — Light Tint */}
+  <div className="absolute inset-x-0 top-1/4 h-1/4 bg-gradient-to-b from-black/10 to-black/25" />
+
+  {/* Zone 3 — Medium Tint */}
+  <div className="absolute inset-x-0 top-2/4 h-1/4 bg-gradient-to-b from-black/25 to-black/60" />
+
+  {/* Zone 4 — Bottom Strong Black (for name + buttons) */}
+  <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-b from-black/60 to-black/85" />
+</div>
+
 
         {/* Online Indicator */}
         {user.isOnline && (
@@ -153,7 +168,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
           disabled={!lastInteraction}
           className="
             flex items-center justify-center 
-            w-12 h-12 rounded-full 
+            w-14 h-14 rounded-full 
             bg-black/20 backdrop-blur-xl border border-white/10
             text-yellow-400 
             hover:bg-yellow-400 hover:text-white hover:border-yellow-400
@@ -163,7 +178,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
             cursor-pointer
           "
         >
-          <RotateCcw className="w-5 h-5" />
+          <RotateCcw className="w-7 h-7" />
         </button>
 
         {/* Pass Button */}

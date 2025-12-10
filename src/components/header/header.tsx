@@ -1,22 +1,22 @@
 "use client";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   SignedIn,
   SignedOut,
   SignInButton,
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
+import { LogIn } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "../buttons/mode-toggle-btn";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { LogIn, Menu } from "lucide-react";
 
 export default function Header() {
   const pathname = usePathname();
