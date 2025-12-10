@@ -1,14 +1,6 @@
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import {
-  User,
-  Heart,
-  Bell,
-  MessageCircle,
-  Star,
-  Zap,
-  ArrowRight,
-} from "lucide-react";
+import { User, Heart, Bell, MessageCircle, Star, Zap } from "lucide-react";
 
 export default function HeroSection() {
   const features = [
@@ -46,46 +38,27 @@ export default function HeroSection() {
 
   return (
     <main className="relative flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-6 text-center text-foreground overflow-hidden py-5">
-      <div className="text-4xl sm:text-5xl font-bold mb-4 text-foreground flex items-center  w-5xl">
-        <div className="w-4/6 flex justify-end">
-          <h1 className="">SparkMatch</h1>
-        </div>
-        <div className="w-2/5 flex justify-end">
-          <Link
-            href="/discover"
-            className="
-    group
-    bg-gradient-to-r from-pink-500 via-red-500 to-orange-500
-    text-white font-semibold
-    px-8 py-2 rounded-full
-    shadow-lg shadow-pink-500/30
-    hover:shadow-2xl hover:shadow-pink-500/40
-    transition-all duration-300
-    text-lg sm:text-xl
-    hover:scale-105 active:scale-95
-    flex items-center gap-2
-  "
-          >
-            <span>Start Discovering</span>
-
-            {/* Right arrow appears on hover */}
-            <span
-              className="
-      opacity-0 translate-x-0 
-      group-hover:opacity-100 group-hover:translate-x-1
-      transition-all duration-300
-    "
-            >
-              <ArrowRight className="h-5 w-5" />
-            </span>
-          </Link>
-        </div>
-      </div>
+      <h1 className="text-4xl sm:text-6xl font-bold mb-4 text-foreground mt-16">
+        SparkMatch
+      </h1>
 
       <p className="text-lg sm:text-xl mb-8 max-w-2xl text-muted-foreground">
-        Perfect destination to find connections, swipe, match, and chat
-        instantly.
+        Your Perfect destination to find connections, swipe, and match.
       </p>
+
+      <Link
+        href="/discover"
+        className="
+    relative inline-flex items-center justify-center
+    px-8 py-2 mb-8 rounded-full font-semibold text-white text-lg sm:text-xl
+    bg-gradient-to-r from-pink-500 via-red-500 to-orange-500
+    hover:scale-105 active:scale-95 transition-all duration-300
+    shadow-lg shadow-pink-500/30
+    moving-border
+  "
+      >
+        Start Discovering
+      </Link>
 
       {/* ⭐ BIG CTA BUTTON */}
 
@@ -93,9 +66,13 @@ export default function HeroSection() {
         {features.map((feature, idx) => (
           <Card
             key={idx}
-            className="flex flex-col p-6 hover:shadow-lg transition-shadow duration-200"
+            className="
+    flex flex-col p-6 
+    bg-card/40 backdrop-blur-md 
+    border border-border/50 rounded-2xl
+    shadow-none 
+  "
           >
-            {/* Icon + Title */}
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex items-center justify-center">
                 {feature.icon}

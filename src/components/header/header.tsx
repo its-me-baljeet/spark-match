@@ -10,11 +10,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "../buttons/mode-toggle-btn";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { LogIn, Menu } from "lucide-react";
 
 export default function Header() {
   const pathname = usePathname();
+
   return (
-    <header className="sticky top-0 left-0 right-0 h-15 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-background/80 backdrop-blur-xl z-50 transition-all duration-300">
+    <header className="sticky top-0 left-0 right-0 h-15 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-background/0 backdrop-blur-xl z-50 transition-all duration-300">
       {/* Brand */}
       <div className="flex items-center gap-2">
         <Link href={"/"} className="flex items-center gap-2 group">
@@ -26,15 +34,15 @@ export default function Header() {
               className="object-contain"
             />
           </div>
-          <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-transparent tracking-tight">
+          <span className="text-lg sm:text-xl -ml-2 font-bold bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-transparent tracking-tight">
             SparkMatch
           </span>
         </Link>
       </div>
 
-      {/* Desktop Navigation */}
-      <div className="flex items-center gap-8">
-        <nav className="hidden md:flex items-center gap-8">
+      <div className="flex items-center gap-4">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-6">
           {[
             { href: "/discover", label: "Discover" },
             { href: "/matches", label: "Matches" },
@@ -62,31 +70,96 @@ export default function Header() {
         <div className="flex items-center gap-3 sm:gap-4">
           <ModeToggle />
 
-          {/* Auth Buttons */}
-          <div className="flex items-center gap-3">
-            <SignedOut>
+          {/* ❤️ AUTH HANDLING */}
+          <SignedOut>
+            {/* Desktop Buttons */}
+            <div className="hidden md:flex items-center gap-4">
               <SignInButton>
                 <button className="px-4 py-2 rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors">
                   Sign In
                 </button>
               </SignInButton>
+
               <SignUpButton>
                 <button className="px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-medium hover:opacity-90 transition-opacity shadow-md hover:shadow-lg">
                   Sign Up
                 </button>
               </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox:
-                      "w-9 h-9 border-2 border-primary/20 hover:border-primary/50 transition-colors",
-                  },
-                }}
-              />
-            </SignedIn>
-          </div>
+            </div>
+
+            {/* Mobile Dropdown */}
+            {/* Mobile Login Dropdown */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="
+          py-2 rounded-full
+          outline-none ring-0
+          hover:bg-transparent active:bg-transparent
+          focus:bg-transparent focus-visible:bg-transparent
+          focus:ring-0 focus-visible:ring-0
+          transition-none
+        "
+                  >
+                    <LogIn strokeWidth={0.75} className="h-5 w-5" />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="
+        w-40 
+        rounded-xl 
+        border border-border/50
+        bg-card/80 backdrop-blur-xl
+        shadow-lg shadow-black/5
+        p-1
+      "
+                >
+                  <DropdownMenuItem
+                    className="
+          cursor-pointer rounded-md 
+          px-3 py-2 text-sm
+          hover:bg-muted/40 
+          transition-colors
+        "
+                    asChild
+                  >
+                    <SignInButton>
+                      <span>Sign In</span>
+                    </SignInButton>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="
+          cursor-pointer rounded-md 
+          px-3 py-2 text-sm
+          hover:bg-muted/40 
+          transition-colors
+        "
+                    asChild
+                  >
+                    <SignUpButton>
+                      <span>Sign Up</span>
+                    </SignUpButton>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </SignedOut>
+
+          {/* User Avatar (signed in) */}
+          <SignedIn>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox:
+                    "w-9 h-9 border-2 border-primary/20 hover:border-primary/50 transition-colors",
+                },
+              }}
+            />
+          </SignedIn>
         </div>
       </div>
     </header>

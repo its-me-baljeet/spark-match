@@ -116,6 +116,10 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+      cursor: pointer;
+    }
   }
   body {
     @apply bg-background text-foreground;
@@ -246,10 +250,58 @@
 }
 
 @keyframes fade {
-  from { opacity: 0.3 }
-  to { opacity: 1 }
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade {
   animation: fade 0.6s ease-in-out infinite alternate;
 }
+
+/* Moving gradient border — Rose Shade Version */
+.moving-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px; /* Border thickness */
+  border-radius: inherit;
+  padding: 2px;
+
+  /* ✨ Soft rose gradient */
+  background: linear-gradient(
+    90deg,
+    #ff7094,
+    /* light rose */ #f5466c,
+    /* rose-400 */ #ff426b,
+    /* rose-500 */ #fc2255,
+    #fe4040
+  );
+
+  background-size: 300% 300%;
+  animation: moving-border-animation 3s linear infinite;
+
+  /* Mask the inside so only border shows */
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  pointer-events: none;
+}
+
+@keyframes moving-border-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.smooth-scale {
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
