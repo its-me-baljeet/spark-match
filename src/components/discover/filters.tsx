@@ -141,6 +141,7 @@ export default function FiltersPanel({
                   variant="secondary"
                   className="flex-1"
                   onClick={resetFilters}
+                  disabled={!isDistanceChanged}
                 >
                   Reset
                 </GradientButton>

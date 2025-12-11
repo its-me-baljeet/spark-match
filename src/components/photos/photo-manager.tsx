@@ -89,9 +89,9 @@ export default function PhotoManager({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-foreground">Photos</h3>
-          {/* <p className="text-sm text-muted-foreground">
-            {photoItems.length}/{maxPhotos} photos • Drag to reorder
-          </p> */}
+          <p className="text-sm text-muted-foreground">
+            {photoItems.length}/{maxPhotos}
+          </p>
         </div>
 
         {photoItems.length < maxPhotos && (
@@ -107,7 +107,7 @@ export default function PhotoManager({
               multiple
               hidden
               onChange={handleFileChange}
-              disabled={saving}
+              disabled={saving || photoItems.length >= maxPhotos}
             />
           </label>
         )}

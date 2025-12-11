@@ -92,21 +92,7 @@ export const TinderCard: React.FC<TinderCardProps> = ({
         />
 
         {/* Gradient Overlay */}
-{/* 4-Zone Vertical Gradient Overlay */}
-<div className="absolute inset-0 pointer-events-none">
-
-  {/* Zone 1 — Top Transparent (image fully visible) */}
-  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent to-black/10" />
-
-  {/* Zone 2 — Light Tint */}
-  <div className="absolute inset-x-0 top-1/4 h-1/4 bg-gradient-to-b from-black/10 to-black/25" />
-
-  {/* Zone 3 — Medium Tint */}
-  <div className="absolute inset-x-0 top-2/4 h-1/4 bg-gradient-to-b from-black/25 to-black/60" />
-
-  {/* Zone 4 — Bottom Strong Black (for name + buttons) */}
-  <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-b from-black/60 to-black/85" />
-</div>
+<div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/40 to-black/80" />
 
 
         {/* Online Indicator */}

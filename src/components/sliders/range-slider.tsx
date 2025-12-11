@@ -40,10 +40,10 @@ export function RangeSlider({
 
   return (
     <div className="space-y-3">
-      <label className="text-sm font-semibold text-foreground">
+      <label className="text-sm font-semibold text-foreground mb-2 block">
         {label}: {values[0]} - {values[1]} years
       </label>
-      <div className="relative px-3">
+      <div className="relative px-3 pt-2">
         <div className="relative h-2 bg-muted rounded-full">
           <div
             className="absolute h-2 bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 rounded-full"
@@ -62,7 +62,7 @@ export function RangeSlider({
   onChange={handleMinChange}
   onMouseDown={() => setDragging("min")}
   onMouseUp={() => setDragging(null)}
-  className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-0 pointer-events-none ${
+  className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-2 pointer-events-none ${
     dragging === "min" ? "z-30" : "z-20"
   }`}
   disabled={saving}
@@ -77,7 +77,7 @@ export function RangeSlider({
   onChange={handleMaxChange}
   onMouseDown={() => setDragging("max")}
   onMouseUp={() => setDragging(null)}
-  className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-0 pointer-events-none ${
+  className={`absolute w-full h-2 bg-transparent appearance-none slider-thumb top-2 pointer-events-none ${
     dragging === "max" ? "z-30" : "z-20"
   }`}
   disabled={saving}

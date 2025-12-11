@@ -49,7 +49,7 @@ export default function EditProfileFab({
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto scrollbar-hide mx-1 md:mx-0">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             Edit Your Profile

@@ -29,6 +29,8 @@ export function ModeToggle() {
             focus-visible:!outline-none 
             !border-none 
             !shadow-none
+            p-0
+            m-0
           "
         >
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />

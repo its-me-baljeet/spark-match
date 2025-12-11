@@ -195,10 +195,9 @@ export default function DiscoverPage() {
     setCursor(null);
     setShowFilters(false);
 
-    if (!isDistanceChanged) return;
+    // if (!isDistanceChanged) return;
 
     await fetchUsers(true);
-    setIsDistanceChanged(false);
   };
 
   const resetFilters = async () => {
@@ -209,12 +208,13 @@ export default function DiscoverPage() {
     setDistanceKm(resetDistance);
     setOnlyOnline(false);
     setCursor(null);
-    setShowFilters(false);
+    // setShowFilters(false);
+    setIsDistanceChanged(false);
 
-    if (!isDistanceChanged) return; 
+    // if (!isDistanceChanged) return;
 
-    await fetchUsers(true, { distanceKm: resetDistance });
-    setIsDistanceChanged(false); 
+    // await fetchUsers(true, { distanceKm: resetDistance });
+    // setIsDistanceChanged(false);
   };
 
   return (
