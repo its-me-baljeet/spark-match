@@ -25,7 +25,7 @@ export default function Header() {
     <header className="sticky top-0 left-0 right-0 h-15 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-background/0 backdrop-blur-xl z-50 transition-all duration-300">
       {/* Brand */}
       <div className="flex items-center gap-2">
-        <Link href={"/"} className="flex items-center gap-2 group">
+        <Link href={"/"} className="flex items-end gap-2 group">
           <div className="relative w-8 h-8 transition-transform duration-300 group-hover:scale-110">
             <Image
               src={"/tinder_logo.png"}

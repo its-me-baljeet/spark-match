@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
+import { LightBulbIcon } from "@heroicons/react/24/solid";
+import { Heart, Lightbulb, MapPin, Settings, User, Zap } from "lucide-react";
 import Link from "next/link";
-import { User, Heart, Bell, MessageCircle, Star, Zap } from "lucide-react";
 
 export default function HeroSection() {
   const features = [
@@ -15,19 +16,19 @@ export default function HeroSection() {
       desc: "Swipe right to like, left to pass, and find your perfect match.",
     },
     {
-      icon: <Bell className="w-6 h-6 text-rose-500" />,
-      title: "Get Notified",
-      desc: "Stay updated when someone likes you or when you get a new match.",
+      icon: <MapPin className="w-6 h-6 text-rose-500" />,
+      title: "Location-Based Discovery",
+      desc: "Discover people nearby using GPS or by searching your city manually.",
     },
     {
-      icon: <MessageCircle className="w-6 h-6 text-rose-500" />,
-      title: "Instant Chat",
-      desc: "Start conversations instantly with people you match with.",
+      icon: <Lightbulb className="w-6 h-6 text-rose-500" />,
+      title: "Smart Matching",
+      desc: "Find better matches using filters like age, distance, and preferences.",
     },
     {
-      icon: <Star className="w-6 h-6 text-rose-500" />,
-      title: "Premium Features",
-      desc: "Unlock exclusive perks and enhance your experience soon.",
+      icon: <Settings className="w-6 h-6 text-rose-500" />,
+      title: "Profile Customization",
+      desc: "Edit your photos, bio, and preferences anytime to refine your presence.",
     },
     {
       icon: <Zap className="w-6 h-6 text-rose-500" />,
